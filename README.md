@@ -1,34 +1,89 @@
 # ⚡ DataQuery Web (`dataquery.in`)
 
 > **Hosted, All-in-One Data Build Tool & Analytics Playground**  
-> Custom Domain: **`https://dataquery.in`**  
-> Ingest files (CSV, Excel) or feeds, explore in a multi-engine Visual Playground (Python, DuckDB SQL, DAX-style Power BI), trigger Automate pipelines, pin findings to live dashboards, and download AI-written executive reports.
+> **Production Live URL**: **[https://dataquery-eight.vercel.app](https://dataquery-eight.vercel.app)**  
+> **Custom Domain**: **`https://dataquery.in`**  
+> **GitHub Repository**: **[AkbarDev/dataquery](https://github.com/AkbarDev/dataquery)**  
+> Ingest raw files (CSV, Excel) or connected feeds, explore in a multi-engine Visual Playground (Python pandas, DuckDB SQL, DAX-style Power BI), trigger Automate recipes, pin findings to live dashboards, and download AI-written executive reports.
 
 ---
 
-## 🚀 Quick Start
+## 🌐 Live Deployments & Routes
+
+| Screen / Feature | Route | Live URL | Description |
+| :--- | :--- | :--- | :--- |
+| **Home Page** | `/` | [View Live](https://dataquery-eight.vercel.app/) | 10-section landing page with interactive hero preview, demo strip, and 8-question FAQ. |
+| **Visual Playground** | `/app/playground` | [View Live](https://dataquery-eight.vercel.app/app/playground) | 3-pane analytical workspace with Python, DuckDB SQL, Power BI DAX builder, and 8 Automate presets. |
+| **Function Library** | `/library` | [View Live](https://dataquery-eight.vercel.app/library) | 90+ searchable functions (30 Python, 30 SQL, 30 DAX) with *"Try on my data"* and *"+ Chain"* buttons. |
+| **Data Connectors** | `/connectors` | [View Live](https://dataquery-eight.vercel.app/connectors) | Tile grid of 9 data sources with a 3-step connection wizard (Choose, Authorize, Select Tables). |
+| **Dashboards** | `/app/dashboards` | [View Live](https://dataquery-eight.vercel.app/app/dashboards) | KPI cards, pinned Recharts visuals, date filters, Pro scheduling, and Apache Superset iframe slot. |
+| **Executive AI Reports** | `/app/reports` | [View Live](https://dataquery-eight.vercel.app/app/reports) | AI narrative report with 3 findings, 2 prescriptive actions, charts, and vector PDF printing. |
+| **Pricing & Plans** | `/pricing` | [View Live](https://dataquery-eight.vercel.app/pricing) | Free Starter vs. DataQuery Pro comparison matrix with annual billing toggle (20% discount). |
+| **Workspace Settings** | `/app/settings` | [View Live](https://dataquery-eight.vercel.app/app/settings) | Account profile, daily quota meters, API token generator, and permanent *"Delete My Data"* action. |
+| **Test Checkout** | `/checkout` | [View Live](https://dataquery-eight.vercel.app/checkout) | Simulated sandbox checkout clearly labeled **TEST MODE** for testing Pro tier upgrades. |
+| **Security Whitepaper** | `/security` | [View Live](https://dataquery-eight.vercel.app/security) | Client-side WASM isolation guarantees and zero-telemetry privacy policy. |
+
+---
+
+## 🛠️ Workarounds & Technical Decisions Log
+
+This section documents all technical challenges, architectural workarounds, and optimizations applied to date. **This log is maintained and updated alongside every subsequent release.**
+
+### 1. Vercel CI Peer Dependency Conflict Resolution (`.npmrc`)
+- **Problem**: When deploying to Vercel, the automated `npm install` step failed with exit code 1 (`npm error Conflicting peer dependency: @types/node@26.6.5` requested by `vitest@5.0.5` vs `@types/papaparse` requiring `@types/node@*`).
+- **Workaround Applied**:
+  - Added a root [`.npmrc`](.npmrc) containing `legacy-peer-deps=true`. Vercel automatically respects `.npmrc` files and instructs npm to gracefully resolve peer dependencies.
+  - Removed `vitest` from devDependencies, eliminating the conflicting `@types/node` dependency chain entirely.
+
+### 2. Zero-Dependency Native Test Runner (`node:test`)
+- **Problem**: Third-party test runners (Vitest, Jest) introduced heavy dependency trees, version incompatibilities with React 19, and cloud CI timeouts.
+- **Workaround Applied**:
+  - Switched the unit test suite to Node.js 20+ built-in test runner: [`node --test src/lib/__tests__/unit.test.mjs`](src/lib/__tests__/unit.test.mjs).
+  - Verified pure mathematical formula evaluators (`SUM`, `AVERAGE`, `DIVIDE` with zero-denominator safeguards, `CALCULATE`) and plan gating logic in **under 50 milliseconds** with **zero external dependencies**.
+
+### 3. Next.js 16 Partial Prerendering Date & Hook Suspense Boundaries
+- **Problem**: Next.js 16 Partial Prerendering and Turbopack statically analyze client components. Using `new Date()` or dynamic hooks like `usePathname()` during SSR prerender triggered build warnings and halted static page generation.
+- **Workaround Applied**:
+  - Wrapped dynamic navigation components in `<Suspense fallback={...}>` boundaries ([`src/components/layout/AppNav.tsx`](src/components/layout/AppNav.tsx)).
+  - Replaced non-deterministic `new Date().getFullYear()` and `new Date().toLocaleDateString()` with stable timestamps and deterministic ISO date slices during static site prerendering.
+  - Result: Production build compiled **21 static routes with 0 errors** in 561ms.
+
+### 4. Free-Tier Serverless Fit via Client-Side WebAssembly (DuckDB & Pyodide)
+- **Problem**: Running persistent python containers, dedicated database servers, Airflow, and LLM instances incurs recurring infrastructure costs incompatible with free-tier hosting.
+- **Workaround Applied**:
+  - Shifted analytical query execution into client-side WebAssembly using DuckDB-WASM and Pyodide pandas in-browser.
+  - Built an API abstraction layer ([`src/lib/api.ts`](src/lib/api.ts)) with realistic client-side mocking. The app is 100% functional on free serverless platforms (Vercel/Netlify), while seamlessly allowing transition to a dedicated self-hosted backend by simply toggling `NEXT_PUBLIC_ENABLE_MOCKS=false` and setting `NEXT_PUBLIC_API_BASE_URL`.
+
+### 5. Production TypeScript Build Optimization
+- **Problem**: Next.js production builds were attempting to typecheck non-compiled testing scripts and end-to-end specs.
+- **Workaround Applied**:
+  - Configured [`tsconfig.json`](tsconfig.json) to exclude `"tests"` and `"src/**/__tests__"` from production compilation, allowing `next build` to complete in under 1 second.
+
+---
+
+## 🚀 Quick Start & Local Development
 
 ### 1. Prerequisites
-- Node.js 18+ (tested on Node 20 & 22)
+- Node.js 18+ (tested on Node 20, 22, and 26)
 - npm 9+
 
 ### 2. Setup & Installation
 ```bash
 # Clone the repository
-git clone https://github.com/AkbarDev/dataquery-web.git
-cd dataquery-web
+git clone https://github.com/AkbarDev/dataquery.git
+cd dataquery
 
-# Install dependencies
-npm install --legacy-peer-deps
+# Install dependencies (automatically uses .npmrc legacy-peer-deps)
+npm install
 
-# Copy environment variables
+# Configure environment variables
 cp .env.example .env.local
 
-# Run the local development server
+# Start the local development server
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+Open [http://localhost:3000](http://localhost:3000) to view the application.
 
 ---
 
@@ -37,17 +92,17 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 | Script | Command | Description |
 | :--- | :--- | :--- |
 | **Development** | `npm run dev` | Runs the Next.js development server with hot-reloading |
-| **Production Build** | `npm run build` | Compiles and statically optimizes the production bundle |
-| **Production Server** | `npm start` | Starts the production Next.js server locally |
+| **Production Build** | `npm run build` | Compiles and statically optimizes all 21 routes with Turbopack |
+| **Production Start** | `npm start` | Starts the production Next.js server locally |
+| **Unit Tests** | `npm test` | Runs the fast native unit test suite (`node --test`) |
 | **Linting** | `npm run lint` | Runs ESLint across all TypeScript and React files |
-| **Unit Tests** | `npm test` | Runs Vitest unit test suite (formula evaluators, plan quotas) |
 
 ---
 
 ## 📁 Repository Structure
 
 ```
-dataquery-web/
+dataquery/
 ├── .github/
 │   ├── workflows/ci.yml           # Automated CI: lint, unit tests & build
 │   └── pull_request_template.md   # PR guidelines and quality checklist
@@ -61,11 +116,27 @@ dataquery-web/
 │   └── samples/                   # Pre-seeded sales.csv and SaaS datasets
 ├── src/
 │   ├── app/                       # Next.js App Router (Public & /app routes)
-│   ├── components/                # Reusable UI component library (shadcn/ui style)
-│   ├── lib/                       # API layer, plans gating, execution engines
+│   │   ├── app/                   # Logged-in workspace (playground, dashboards, reports)
+│   │   ├── library/               # 90+ function searchable catalog
+│   │   ├── connectors/            # Data connectors grid & 3-step modal
+│   │   ├── pricing/               # Plans & feature comparison
+│   │   ├── checkout/              # Test-mode subscription checkout
+│   │   ├── security/              # Data isolation whitepaper
+│   │   ├── templates/             # Starter blueprints
+│   │   └── page.tsx               # 10-section Home landing page
+│   ├── components/                # Reusable UI component library
+│   │   ├── ui/                    # 17 core components (Button, Modal, Table, etc.)
+│   │   ├── layout/                # PublicNav, PublicFooter, AppNav
+│   │   └── playground/            # LeftDataPanel, CenterWorkArea, RightOutputPanel, etc.
+│   ├── lib/                       # API layer, plans gating, formula evaluators
+│   │   ├── api.ts                 # Unified API contract & mock engine
+│   │   ├── plans.ts               # Free vs Pro feature flags and limits
+│   │   ├── formulas.ts            # DAX and aggregation helper evaluators
+│   │   └── store/                 # Zustand global application state
 │   └── styles/                    # Global CSS and Tailwind design tokens
 ├── netlify.toml                   # Netlify build configuration & CSP headers
 ├── vercel.json                    # Vercel deployment config & security headers
+├── .npmrc                         # Legacy peer dependencies configuration
 ├── .env.example                   # Environment variable template
 ├── CONTRIBUTING.md                # Branching & Conventional Commit rules
 └── CHANGELOG.md                   # Semantic version history
@@ -73,20 +144,25 @@ dataquery-web/
 
 ---
 
-## 🚢 Deploying to Production (`dataquery.in`)
+## 🚢 Production Deployment to Vercel & Netlify
 
-This frontend is designed to deploy seamlessly to **Vercel** or **Netlify** with zero code changes:
+This frontend is designed to deploy to **Vercel** or **Netlify** with zero code changes:
 
-- **Vercel**: Import the GitHub repo at [vercel.com/new](https://vercel.com/new) -> Framework preset: Next.js -> Add environment variables -> Deploy.
-- **Netlify**: Import at [app.netlify.com](https://app.netlify.com) -> Uses `netlify.toml` automatically -> Deploy.
-
-For custom domain configuration (`dataquery.in`), DNS records, SSL, and free-tier terms, consult [docs/deployment.md](docs/deployment.md).
+- **Vercel**: Pre-configured with [`vercel.json`](vercel.json) security headers (CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy). Pushes to `main` automatically deploy to [https://dataquery-eight.vercel.app](https://dataquery-eight.vercel.app).
+- **Netlify**: Pre-configured with [`netlify.toml`](netlify.toml) and `@netlify/plugin-nextjs`.
+- **Custom Domain (`dataquery.in`)**:
+  - Configure DNS A Record: `@` → `76.76.21.21` (Vercel) or `75.2.60.5` (Netlify).
+  - Configure CNAME Record: `www` → `cname.vercel-dns.com`.
+  - Detailed steps available in [docs/deployment.md](docs/deployment.md).
 
 ---
 
-## 📜 Branching & Commit Guidelines
+## 🔄 Maintenance & Documentation Update Protocol
 
-- **`main`**: Production branch (`https://dataquery.in`). Protected.
-- **`dev`**: Staging integration branch.
-- **Feature Branches**: Branch off `dev` as `feat/<name>`, `fix/<name>`, or `docs/<name>`.
-- Use [Conventional Commits](CONTRIBUTING.md) for all pull requests.
+> [!IMPORTANT]
+> **Mandatory Documentation Integrity Rule**:
+> As new enhancements, bug fixes, or architectural changes are introduced to the DataQuery platform:
+> 1. **Update `README.md`**: Update the *Workarounds & Technical Decisions Log* and the *Live Deployments & Routes* table if new routes or configurations are added.
+> 2. **Update `CHANGELOG.md`**: Log all notable changes under the appropriate semantic version section (`Added`, `Changed`, `Fixed`).
+> 3. **Update `/docs`**: Keep [docs/api.md](docs/api.md), [docs/functions-catalog.md](docs/functions-catalog.md), and [docs/deployment.md](docs/deployment.md) in sync with any API or function schema modifications.
+> 4. **Git Commits**: Use [Conventional Commits](CONTRIBUTING.md) (`feat:`, `fix:`, `docs:`, `chore:`) and verify that `npm test` and `npm run build` pass before merging to `main`.

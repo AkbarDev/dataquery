@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.2.1] - 2026-10-28
+
+### Added
+- **Workarounds & Technical Decisions Log**: Documented all 5 core engineering workarounds in `README.md` (Vercel `.npmrc` peer dependency resolution, zero-dependency `node:test` runner, Next.js 16 Partial Prerendering `<Suspense>` boundaries, serverless WebAssembly free-tier architecture, and production TypeScript exclude rules).
+- **Live Deployment Directory**: Added direct live links to all 10 production routes hosted on Vercel (`https://dataquery-eight.vercel.app`).
+- **Continuous Documentation Protocol**: Established mandatory update rules across `README.md`, `CHANGELOG.md`, and `/docs` for all future enhancements.
+
+---
+
 ## [0.2.0] - 2026-10-27
 
 ### Added
