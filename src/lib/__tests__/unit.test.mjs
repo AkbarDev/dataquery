@@ -41,3 +41,38 @@ test("Open Source Limits & Gating Verification", () => {
   assert.equal(communityLimits.maxRows >= 100000000, true);
 });
 
+test("Statistics Testing - Student's Two-Sample t-statistic and variance calculation", () => {
+  const sampleA = [12, 14, 15, 18, 20];
+  const sampleB = [8, 9, 11, 10, 12];
+
+  const meanA = sampleA.reduce((a, b) => a + b, 0) / sampleA.length;
+  const meanB = sampleB.reduce((a, b) => a + b, 0) / sampleB.length;
+  assert.equal(meanA, 15.8);
+  assert.equal(meanB, 10.0);
+
+  const varA = sampleA.reduce((acc, v) => acc + Math.pow(v - meanA, 2), 0) / (sampleA.length - 1);
+  const varB = sampleB.reduce((acc, v) => acc + Math.pow(v - meanB, 2), 0) / (sampleB.length - 1);
+  const pooledSE = Math.sqrt(varA / sampleA.length + varB / sampleB.length);
+  const tStat = (meanA - meanB) / pooledSE;
+
+  assert.equal(tStat > 3.0, true, "t-statistic should indicate strong statistical difference");
+});
+
+test("Machine Learning Metrics - Confusion Matrix, Accuracy, Precision, Recall, F1", () => {
+  const tp = 85;
+  const fp = 15;
+  const fn = 10;
+  const tn = 90;
+
+  const total = tp + fp + fn + tn;
+  const accuracy = (tp + tn) / total;
+  const precision = tp / (tp + fp);
+  const recall = tp / (tp + fn);
+  const f1 = (2 * (precision * recall)) / (precision + recall);
+
+  assert.equal(accuracy, 0.875);
+  assert.equal(precision, 0.85);
+  assert.equal(Math.round(recall * 1000) / 1000, 0.895);
+  assert.equal(f1 > 0.87 && f1 < 0.88, true, "F1 score should be harmonic mean around 0.872");
+});
+

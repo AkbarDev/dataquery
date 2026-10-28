@@ -12,6 +12,10 @@ import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { LockBadge } from "@/components/ui/LockBadge";
 import { Modal } from "@/components/ui/Modal";
+import { StatisticsStudio } from "./StatisticsStudio";
+import { PySparkStudio } from "./PySparkStudio";
+import { HadoopStudio } from "./HadoopStudio";
+import { MachineLearningStudio } from "./MachineLearningStudio";
 import {
   Play,
   Sparkles,
@@ -41,6 +45,14 @@ export function CenterWorkArea() {
     setSqlCode,
     daxCode,
     setDaxCode,
+    statisticsCode,
+    setStatisticsCode,
+    pysparkCode,
+    setPysparkCode,
+    hadoopCode,
+    setHadoopCode,
+    mlCode,
+    setMlCode,
     currentDataset,
     isExecuting,
     setIsExecuting,
@@ -96,7 +108,15 @@ export function CenterWorkArea() {
           ? pythonCode
           : activeLanguage === "sql"
           ? sqlCode
-          : daxCode;
+          : activeLanguage === "dax"
+          ? daxCode
+          : activeLanguage === "statistics"
+          ? statisticsCode
+          : activeLanguage === "pyspark"
+          ? pysparkCode
+          : activeLanguage === "hadoop"
+          ? hadoopCode
+          : mlCode;
 
       const result = await api.runCode({
         language: activeLanguage,
@@ -153,7 +173,21 @@ export function CenterWorkArea() {
     }
   };
 
-  // 3. Keyboard Shortcuts Listener
+  // 3. Sync tab from URL query param if present
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const tab = params.get("tab") as Language | null;
+      if (
+        tab &&
+        ["python", "sql", "dax", "statistics", "pyspark", "hadoop", "ml"].includes(tab)
+      ) {
+        setActiveLanguage(tab);
+      }
+    }
+  }, [setActiveLanguage]);
+
+  // 4. Keyboard Shortcuts Listener
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === "Enter") {
@@ -189,9 +223,21 @@ export function CenterWorkArea() {
     } else if (func.language === "sql") {
       setSqlCode(sqlCode + "\n\n-- Added: " + func.name + "\n" + func.snippet);
       setActiveLanguage("sql");
-    } else {
+    } else if (func.language === "dax") {
       setDaxCode(daxCode + "\n\n// Added: " + func.name + "\n" + func.snippet);
       setActiveLanguage("dax");
+    } else if (func.language === "statistics") {
+      setStatisticsCode(statisticsCode + "\n\n# Added: " + func.name + "\n" + func.snippet);
+      setActiveLanguage("statistics");
+    } else if (func.language === "pyspark") {
+      setPysparkCode(pysparkCode + "\n\n# Added: " + func.name + "\n" + func.snippet);
+      setActiveLanguage("pyspark");
+    } else if (func.language === "hadoop") {
+      setHadoopCode(hadoopCode + "\n\n# Added: " + func.name + "\n" + func.snippet);
+      setActiveLanguage("hadoop");
+    } else if (func.language === "ml") {
+      setMlCode(mlCode + "\n\n# Added: " + func.name + "\n" + func.snippet);
+      setActiveLanguage("ml");
     }
     setIsFunctionPickerOpen(false);
     toast.success("Snippet Inserted", `Appended ${func.name} to your ${func.language.toUpperCase()} workspace.`);
@@ -211,10 +257,11 @@ export function CenterWorkArea() {
     <div className="h-full flex flex-col bg-slate-900 border-r border-slate-800 text-slate-100 overflow-hidden">
       {/* Top Header Bar: Engine Tabs + Mode Toggle + Function Picker Button */}
       <div className="px-3 py-2 border-b border-slate-800 bg-slate-950 flex flex-wrap items-center justify-between gap-2 shrink-0">
-        <div className="flex items-center space-x-2">
-          {/* Tab Bar: Python | SQL | Power BI-style */}
+        <div className="flex items-center space-x-2 overflow-x-auto no-scrollbar max-w-full">
+          {/* Tab Bar: Python | SQL | Power BI | Statistics | PySpark | Hadoop | ML */}
           <Tabs
             variant="editor"
+            className="border-b-0 bg-transparent px-0 pt-0 shrink-0"
             tabs={[
               {
                 id: "python",
@@ -230,6 +277,26 @@ export function CenterWorkArea() {
                 id: "dax",
                 label: "Power BI (DAX)",
                 icon: <span className="w-2 h-2 rounded-full bg-purple-400" />,
+              },
+              {
+                id: "statistics",
+                label: "Statistics",
+                icon: <span className="w-2 h-2 rounded-full bg-emerald-400" />,
+              },
+              {
+                id: "pyspark",
+                label: "PySpark",
+                icon: <span className="w-2 h-2 rounded-full bg-amber-400" />,
+              },
+              {
+                id: "hadoop",
+                label: "Hadoop",
+                icon: <span className="w-2 h-2 rounded-full bg-cyan-400" />,
+              },
+              {
+                id: "ml",
+                label: "Machine Learning",
+                icon: <span className="w-2 h-2 rounded-full bg-fuchsia-400" />,
               },
             ]}
             activeTab={activeLanguage}
@@ -290,7 +357,7 @@ export function CenterWorkArea() {
       <div className="flex-1 overflow-hidden relative flex flex-col">
         {playgroundMode === "manual" ? (
           // MANUAL MODE: Code Editor Area
-          <div className="flex-1 flex flex-col h-full bg-[#0d1117]">
+          <div className="flex-1 flex flex-col h-full bg-[#0d1117] overflow-hidden">
             {activeLanguage === "dax" ? (
               // Power BI Visual Field Builder + DAX Formulas
               <div className="flex-1 flex flex-col p-4 overflow-y-auto space-y-4">
@@ -361,6 +428,46 @@ export function CenterWorkArea() {
                     className="w-full flex-1 p-3 bg-slate-950 text-slate-200 font-mono text-xs border border-slate-800 rounded-xl resize-none focus:outline-none focus:border-purple-400 leading-relaxed"
                   />
                 </div>
+              </div>
+            ) : activeLanguage === "statistics" ? (
+              <div className="flex-1 overflow-y-auto p-4">
+                <StatisticsStudio
+                  dataset={currentDataset}
+                  code={statisticsCode}
+                  onChangeCode={setStatisticsCode}
+                  onExecute={handleRun}
+                  isExecuting={isExecuting}
+                />
+              </div>
+            ) : activeLanguage === "pyspark" ? (
+              <div className="flex-1 overflow-y-auto p-4">
+                <PySparkStudio
+                  dataset={currentDataset}
+                  code={pysparkCode}
+                  onChangeCode={setPysparkCode}
+                  onExecute={handleRun}
+                  isExecuting={isExecuting}
+                />
+              </div>
+            ) : activeLanguage === "hadoop" ? (
+              <div className="flex-1 overflow-y-auto p-4">
+                <HadoopStudio
+                  dataset={currentDataset}
+                  code={hadoopCode}
+                  onChangeCode={setHadoopCode}
+                  onExecute={handleRun}
+                  isExecuting={isExecuting}
+                />
+              </div>
+            ) : activeLanguage === "ml" ? (
+              <div className="flex-1 overflow-y-auto p-4">
+                <MachineLearningStudio
+                  dataset={currentDataset}
+                  code={mlCode}
+                  onChangeCode={setMlCode}
+                  onExecute={handleRun}
+                  isExecuting={isExecuting}
+                />
               </div>
             ) : (
               // Monaco / Raw Code Textarea for Python or SQL

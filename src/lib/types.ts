@@ -1,5 +1,36 @@
-export type Language = "python" | "sql" | "dax";
+export type Language =
+  | "python"
+  | "sql"
+  | "dax"
+  | "statistics"
+  | "pyspark"
+  | "hadoop"
+  | "ml";
+
 export type FunctionLevel = "basic" | "intermediate" | "advanced";
+
+export interface MLModelEvaluation {
+  modelName: string;
+  task: "classification" | "regression" | "clustering";
+  targetColumn: string;
+  featureColumns: string[];
+  metricPrimary: { name: string; value: number };
+  precision?: number;
+  recall?: number;
+  f1Score?: number;
+  confusionMatrix?: { tp: number; fp: number; fn: number; tn: number };
+  featureImportance: { feature: string; importance: number }[];
+  trainTestSplit: number;
+}
+
+export interface StatTestResult {
+  testName: string;
+  statistic: number;
+  pValue: number;
+  significant: boolean;
+  alpha: number;
+  conclusion: string;
+}
 
 export interface ColumnProfile {
   name: string;

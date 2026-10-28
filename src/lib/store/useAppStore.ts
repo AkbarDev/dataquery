@@ -37,9 +37,17 @@ export interface AppState {
   pythonCode: string;
   sqlCode: string;
   daxCode: string;
+  statisticsCode: string;
+  pysparkCode: string;
+  hadoopCode: string;
+  mlCode: string;
   setPythonCode: (code: string) => void;
   setSqlCode: (code: string) => void;
   setDaxCode: (code: string) => void;
+  setStatisticsCode: (code: string) => void;
+  setPysparkCode: (code: string) => void;
+  setHadoopCode: (code: string) => void;
+  setMlCode: (code: string) => void;
 
   // Execution Telemetry
   isExecuting: boolean;
@@ -119,6 +127,90 @@ Gross Margin % = DIVIDE([Total Profit], [Total Revenue], 0)
 Enterprise Revenue = CALCULATE([Total Revenue], Sales[customer_tier] == "Enterprise")
 `;
 
+const DEFAULT_STATISTICS_CODE = `# DataQuery - Statistics & Hypothesis Testing Studio
+# scipy.stats & statsmodels analytical pipeline
+import numpy as np
+from scipy import stats
+
+# 1. Independent Two-Sample T-Test
+group_a = df[df['region'] == 'North America']['revenue']
+group_b = df[df['region'] == 'Europe']['revenue']
+t_stat, p_val = stats.ttest_ind(group_a, group_b, equal_var=False)
+
+print(f"Independent t-test: t={t_stat:.4f}, p-value={p_val:.4f}")
+print("Hypothesis Conclusion:", "Reject H0 (Statistically Significant)" if p_val < 0.05 else "Fail to reject H0")
+
+# 2. Pearson & Spearman Correlation
+r_val, p_corr = stats.pearsonr(df['revenue'], df['profit'])
+print(f"Revenue vs Profit Pearson r: {r_val:.3f} (p={p_corr:.4e})")
+`;
+
+const DEFAULT_PYSPARK_CODE = `# DataQuery - Apache PySpark Studio
+# Distributed DataFrame Transformations & Window Functions
+from pyspark.sql import SparkSession
+from pyspark.sql import functions as F
+from pyspark.sql.window import Window
+
+spark = SparkSession.builder.appName("DataQuery-PySpark").getOrCreate()
+sdf = spark.createDataFrame(df)
+
+# Analytical window aggregation: Ranking by regional revenue
+window_spec = Window.partitionBy("region").orderBy(F.col("revenue").desc())
+ranked_df = sdf.withColumn("region_rank", F.rank().over(window_spec)) \\
+               .withColumn("margin_pct", F.round((F.col("profit") / F.col("revenue")) * 100, 2))
+
+ranked_df.select("id", "region", "revenue", "profit", "margin_pct", "region_rank").show(10)
+`;
+
+const DEFAULT_HADOOP_CODE = `// DataQuery - Apache Hadoop & HiveQL Studio
+// MapReduce Driver & Hive Partitioned Table Definition
+
+// 1. MapReduce Aggregation Class
+public static class RevenueMapper extends Mapper<LongWritable, Text, Text, DoubleWritable> {
+    private Text regionKey = new Text();
+    private DoubleWritable revenueVal = new DoubleWritable();
+
+    public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
+        String[] row = value.toString().split(",");
+        regionKey.set(row[2]); // region
+        revenueVal.set(Double.parseDouble(row[3])); // revenue
+        context.write(regionKey, revenueVal);
+    }
+}
+
+public static class RevenueReducer extends Reducer<Text, DoubleWritable, Text, DoubleWritable> {
+    public void reduce(Text key, Iterable<DoubleWritable> values, Context context) throws IOException, InterruptedException {
+        double sum = 0.0;
+        for (DoubleWritable val : values) sum += val.get();
+        context.write(key, new DoubleWritable(sum));
+    }
+}
+`;
+
+const DEFAULT_ML_CODE = `# DataQuery - Machine Learning Model Studio
+# Scikit-Learn Classification & Regression Pipeline
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+
+# Features & Target formulation
+features = ['revenue', 'profit', 'units_sold']
+X = df[features]
+y = (df['profit'] > df['profit'].median()).astype(int) # High Margin vs Standard
+
+# 80/20 Train-Test split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Train Random Forest Classifier
+clf = RandomForestClassifier(n_estimators=100, max_depth=5, random_state=42)
+clf.fit(X_train, y_train)
+
+# Evaluation
+preds = clf.predict(X_test)
+print(f"Model Accuracy: {accuracy_score(y_test, preds) * 100:.1f}%")
+print("Confusion Matrix:\\n", confusion_matrix(y_test, preds))
+`;
+
 export const useAppStore = create<AppState>()(
   persist(
     (set, get) => ({
@@ -161,9 +253,17 @@ export const useAppStore = create<AppState>()(
       pythonCode: DEFAULT_PYTHON_CODE,
       sqlCode: DEFAULT_SQL_CODE,
       daxCode: DEFAULT_DAX_CODE,
+      statisticsCode: DEFAULT_STATISTICS_CODE,
+      pysparkCode: DEFAULT_PYSPARK_CODE,
+      hadoopCode: DEFAULT_HADOOP_CODE,
+      mlCode: DEFAULT_ML_CODE,
       setPythonCode: (code) => set({ pythonCode: code, saveStatus: "Unsaved" }),
       setSqlCode: (code) => set({ sqlCode: code, saveStatus: "Unsaved" }),
       setDaxCode: (code) => set({ daxCode: code, saveStatus: "Unsaved" }),
+      setStatisticsCode: (code) => set({ statisticsCode: code, saveStatus: "Unsaved" }),
+      setPysparkCode: (code) => set({ pysparkCode: code, saveStatus: "Unsaved" }),
+      setHadoopCode: (code) => set({ hadoopCode: code, saveStatus: "Unsaved" }),
+      setMlCode: (code) => set({ mlCode: code, saveStatus: "Unsaved" }),
 
       isExecuting: false,
       setIsExecuting: (executing) => set({ isExecuting: executing }),

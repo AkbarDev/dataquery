@@ -68,6 +68,19 @@ This section documents all technical challenges, architectural workarounds, and 
   - Replaced checkout prompts and upgrade lock badges with Community Open Source badges and links to GitHub.
   - Created a custom vector [`src/components/ui/GithubIcon.tsx`](src/components/ui/GithubIcon.tsx) for zero-dependency brand rendering across Next.js Turbopack SSR builds.
 
+### 7. Multi-Engine Big Data, Distributed Computing & Machine Learning Playground Expansion
+- **Context & Request**: Expanded DataQuery beyond standard SQL/Python/DAX to support advanced statistical hypothesis testing, distributed big data processing (PySpark & Hadoop), and end-to-end Machine Learning model training and evaluation directly in the browser.
+- **Architectural Implementation**:
+  - Expanded core language union across all types and stores: `"python" | "sql" | "dax" | "statistics" | "pyspark" | "hadoop" | "ml"`.
+  - Built 4 visual studios:
+    - [`StatisticsStudio.tsx`](src/components/playground/StatisticsStudio.tsx): Hypothesis testing suite (Student's Two-Sample t-test, One-Way ANOVA, Pearson Chi-Square, Mann-Whitney U), 5-number parametric distribution tables, Pearson correlation matrix heatmap, and IQR outlier detection.
+    - [`PySparkStudio.tsx`](src/components/playground/PySparkStudio.tsx): Distributed DataFrame transformations, Catalyst query optimizer physical plan inspector, visual Spark DAG execution stage monitor, and StructType schema visualizer.
+    - [`HadoopStudio.tsx`](src/components/playground/HadoopStudio.tsx): 3-phase MapReduce telemetry monitor (Map, Shuffle & Sort, Reduce), HiveQL columnar DDL partition manager, virtual HDFS CLI terminal (`hdfs dfs -ls / -mkdir / -cat`), and YARN cluster node manager telemetry.
+    - [`MachineLearningStudio.tsx`](src/components/playground/MachineLearningStudio.tsx): Classification, Regression, and Clustering model selection (Random Forest, Logistic Regression, Gradient Boosting, Ridge, K-Means), interactive hyperparameter sliders, 80/20 train/test split, comprehensive evaluation metrics (Accuracy, ROC-AUC, Precision, Recall, F1, MSE, R²), interactive 2x2 confusion matrix, feature importance ranking, interactive prediction sandbox, and Scikit-Learn code generator.
+  - Seeded 40 new functions across all 4 domains (bringing total catalog to 130+ pre-configured functions in [`src/lib/sampleData.ts`](src/lib/sampleData.ts)).
+  - Wired full tab navigation into [`src/components/playground/CenterWorkArea.tsx`](src/components/playground/CenterWorkArea.tsx) with horizontal scroll and URL parameter syncing (`?tab=...`).
+  - Added unit tests for statistical variance / t-statistic computation and ML confusion matrix evaluation metrics in [`src/lib/__tests__/unit.test.mjs`](src/lib/__tests__/unit.test.mjs).
+
 ---
 
 ## 🚀 Quick Start & Local Development

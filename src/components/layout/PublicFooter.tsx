@@ -17,7 +17,7 @@ export function PublicFooter() {
               </span>
             </div>
             <p className="text-slate-400 max-w-sm text-xs leading-relaxed">
-              Hosted, all-in-one data build tool. Ingest multi-format datasets, explore in an in-browser playground (Python, DuckDB, DAX), trigger Automate pipelines, and download AI reports.
+              Hosted, all-in-one data build tool. Ingest multi-format datasets, explore in an in-browser playground (Python, DuckDB, DAX, PySpark, Hadoop, Statistics & ML), trigger Automate pipelines, and train models.
             </p>
             <div className="flex items-center gap-2 mt-4 text-[11px] text-emerald-400 font-mono">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
@@ -40,13 +40,16 @@ export function PublicFooter() {
 
           <div>
             <h4 className="font-semibold text-slate-200 uppercase tracking-wider text-[11px] mb-3">
-              Languages & BI
+              Engines & BI
             </h4>
             <ul className="space-y-2">
               <li><Link href="/app/playground?tab=python" className="hover:text-slate-200">Python (Pandas)</Link></li>
               <li><Link href="/app/playground?tab=sql" className="hover:text-slate-200">DuckDB SQL</Link></li>
               <li><Link href="/app/playground?tab=dax" className="hover:text-slate-200">Power BI (DAX)</Link></li>
-              <li><Link href="/docs/functions-catalog" className="hover:text-slate-200">Functions Catalog</Link></li>
+              <li><Link href="/app/playground?tab=statistics" className="hover:text-slate-200">Statistics Engine</Link></li>
+              <li><Link href="/app/playground?tab=pyspark" className="hover:text-slate-200">PySpark Distributed</Link></li>
+              <li><Link href="/app/playground?tab=hadoop" className="hover:text-slate-200">Hadoop MapReduce</Link></li>
+              <li><Link href="/app/playground?tab=ml" className="hover:text-slate-200">Machine Learning</Link></li>
             </ul>
           </div>
 

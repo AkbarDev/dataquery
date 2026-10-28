@@ -24,7 +24,17 @@ import {
 
 export default function FunctionLibraryPage() {
   const router = useRouter();
-  const { setPythonCode, setSqlCode, setDaxCode, setActiveLanguage, setPlaygroundMode } = useAppStore();
+  const {
+    setPythonCode,
+    setSqlCode,
+    setDaxCode,
+    setStatisticsCode,
+    setPysparkCode,
+    setHadoopCode,
+    setMlCode,
+    setActiveLanguage,
+    setPlaygroundMode,
+  } = useAppStore();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedLanguage, setSelectedLanguage] = useState<Language | "all">("all");
@@ -47,8 +57,16 @@ export default function FunctionLibraryPage() {
       setPythonCode(`# Loaded function snippet: ${fn.name}\n${fn.snippet}`);
     } else if (fn.language === "sql") {
       setSqlCode(`-- Loaded function snippet: ${fn.name}\n${fn.snippet}`);
-    } else {
+    } else if (fn.language === "dax") {
       setDaxCode(`// Loaded function snippet: ${fn.name}\n${fn.snippet}`);
+    } else if (fn.language === "statistics") {
+      setStatisticsCode(`# Loaded statistics test: ${fn.name}\n${fn.snippet}`);
+    } else if (fn.language === "pyspark") {
+      setPysparkCode(`# Loaded PySpark transform: ${fn.name}\n${fn.snippet}`);
+    } else if (fn.language === "hadoop") {
+      setHadoopCode(`-- Loaded Hadoop job snippet: ${fn.name}\n${fn.snippet}`);
+    } else if (fn.language === "ml") {
+      setMlCode(`# Loaded ML pipeline: ${fn.name}\n${fn.snippet}`);
     }
     toast.success("Snippet Loaded", `Opening Playground with "${fn.name}" snippet ready.`);
     router.push("/app/playground");
@@ -68,12 +86,12 @@ export default function FunctionLibraryPage() {
       <main className="flex-1 py-14 px-4 sm:px-6 max-w-7xl mx-auto w-full">
         {/* Header */}
         <div className="text-center space-y-3 max-w-2xl mx-auto mb-10">
-          <Badge variant="info" size="md">90+ Pre-Configured Functions</Badge>
+          <Badge variant="info" size="md">130+ Pre-Configured Functions & Models</Badge>
           <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-100 tracking-tight">
             The DataQuery Function Library
           </h1>
           <p className="text-xs sm:text-sm text-slate-400">
-            Search curated transformations across Python (pandas), DuckDB SQL, and Power BI DAX. Click to test on your own data instantly.
+            Search curated transformations across Python Pandas, DuckDB SQL, Power BI DAX, Statistics, PySpark, Hadoop, and Scikit-Learn ML models. Click to test on your own data instantly.
           </p>
         </div>
 
@@ -87,49 +105,81 @@ export default function FunctionLibraryPage() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search functions by name, operation, or formula (e.g. groupby, rolling, CALCULATE)..."
+                placeholder="Search functions by name, operation, or formula (e.g. ANOVA, Spark Window, Random Forest, CALCULATE)..."
                 className="w-full bg-slate-950 pl-9 pr-3 py-2.5 rounded-xl border border-slate-800 text-xs text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-sky-400"
               />
             </div>
 
             {/* Language Filter */}
-            <div className="flex items-center space-x-1 p-1 bg-slate-950 rounded-xl border border-slate-800 text-xs">
+            <div className="flex items-center flex-wrap gap-1 p-1 bg-slate-950 rounded-xl border border-slate-800 text-xs">
               <button
                 onClick={() => setSelectedLanguage("all")}
-                className={`px-3 py-1.5 rounded-lg font-medium transition-colors cursor-pointer ${
+                className={`px-2.5 py-1.5 rounded-lg font-medium transition-colors cursor-pointer ${
                   selectedLanguage === "all" ? "bg-slate-800 text-slate-100 font-semibold" : "text-slate-400 hover:text-white"
                 }`}
               >
-                All Languages ({SEEDED_FUNCTIONS.length})
+                All ({SEEDED_FUNCTIONS.length})
               </button>
               <button
                 onClick={() => setSelectedLanguage("python")}
-                className={`px-3 py-1.5 rounded-lg font-medium transition-colors cursor-pointer ${
+                className={`px-2.5 py-1.5 rounded-lg font-medium transition-colors cursor-pointer ${
                   selectedLanguage === "python" ? "bg-blue-500/20 text-blue-300 font-semibold" : "text-slate-400 hover:text-white"
                 }`}
               >
-                Python (30)
+                Python
               </button>
               <button
                 onClick={() => setSelectedLanguage("sql")}
-                className={`px-3 py-1.5 rounded-lg font-medium transition-colors cursor-pointer ${
+                className={`px-2.5 py-1.5 rounded-lg font-medium transition-colors cursor-pointer ${
                   selectedLanguage === "sql" ? "bg-sky-500/20 text-sky-300 font-semibold" : "text-slate-400 hover:text-white"
                 }`}
               >
-                DuckDB SQL (30)
+                SQL
               </button>
               <button
                 onClick={() => setSelectedLanguage("dax")}
-                className={`px-3 py-1.5 rounded-lg font-medium transition-colors cursor-pointer ${
+                className={`px-2.5 py-1.5 rounded-lg font-medium transition-colors cursor-pointer ${
                   selectedLanguage === "dax" ? "bg-purple-500/20 text-purple-300 font-semibold" : "text-slate-400 hover:text-white"
                 }`}
               >
-                Power BI DAX (30)
+                DAX
+              </button>
+              <button
+                onClick={() => setSelectedLanguage("statistics")}
+                className={`px-2.5 py-1.5 rounded-lg font-medium transition-colors cursor-pointer ${
+                  selectedLanguage === "statistics" ? "bg-emerald-500/20 text-emerald-300 font-semibold" : "text-slate-400 hover:text-white"
+                }`}
+              >
+                Statistics
+              </button>
+              <button
+                onClick={() => setSelectedLanguage("pyspark")}
+                className={`px-2.5 py-1.5 rounded-lg font-medium transition-colors cursor-pointer ${
+                  selectedLanguage === "pyspark" ? "bg-amber-500/20 text-amber-300 font-semibold" : "text-slate-400 hover:text-white"
+                }`}
+              >
+                PySpark
+              </button>
+              <button
+                onClick={() => setSelectedLanguage("hadoop")}
+                className={`px-2.5 py-1.5 rounded-lg font-medium transition-colors cursor-pointer ${
+                  selectedLanguage === "hadoop" ? "bg-cyan-500/20 text-cyan-300 font-semibold" : "text-slate-400 hover:text-white"
+                }`}
+              >
+                Hadoop
+              </button>
+              <button
+                onClick={() => setSelectedLanguage("ml")}
+                className={`px-2.5 py-1.5 rounded-lg font-medium transition-colors cursor-pointer ${
+                  selectedLanguage === "ml" ? "bg-fuchsia-500/20 text-fuchsia-300 font-semibold" : "text-slate-400 hover:text-white"
+                }`}
+              >
+                Machine Learning
               </button>
             </div>
 
             {/* Level Filter */}
-            <div className="flex items-center space-x-1 p-1 bg-slate-950 rounded-xl border border-slate-800 text-xs">
+            <div className="flex items-center space-x-1 p-1 bg-slate-950 rounded-xl border border-slate-800 text-xs shrink-0">
               {(["all", "basic", "intermediate", "advanced"] as const).map((lvl) => (
                 <button
                   key={lvl}
@@ -148,13 +198,6 @@ export default function FunctionLibraryPage() {
         {/* Function Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {filteredFunctions.map((fn) => {
-            const langBadge =
-              fn.language === "python"
-                ? "python"
-                : fn.language === "sql"
-                ? "sql"
-                : "dax";
-
             return (
               <div
                 key={fn.id}
@@ -162,7 +205,7 @@ export default function FunctionLibraryPage() {
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <Badge variant={langBadge} size="sm">
+                    <Badge variant={fn.language} size="sm">
                       {fn.language.toUpperCase()}
                     </Badge>
                     <Badge

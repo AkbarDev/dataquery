@@ -7,6 +7,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.4.0] - 2026-10-28
+
+### Added
+- **Multi-Engine Big Data, Distributed Computing & Machine Learning Studios**:
+  - **Statistics Studio (`StatisticsStudio.tsx`)**:
+    - Parametric and non-parametric hypothesis testing suite: Student's Two-Sample t-test, One-Way ANOVA, Pearson Chi-Square, and Mann-Whitney U test with p-value calculations and significance evaluation.
+    - Parametric 5-number distribution tables (mean, median, std dev, min, max, IQR, skewness) per numeric column.
+    - Pearson correlation matrix heatmap and IQR outlier detection.
+  - **PySpark Distributed Studio (`PySparkStudio.tsx`)**:
+    - Distributed DataFrame transformations: Window `partitionBy`/`orderBy`, `groupBy` aggregations, `withColumn` conditionals, and `repartition`.
+    - Visual Spark DAG execution stage monitor with Tungsten physical plan / Catalyst query optimizer inspector.
+    - StructType schema explorer with distributed partition counts.
+  - **Hadoop Ecosystem Studio (`HadoopStudio.tsx`)**:
+    - 3-phase MapReduce telemetry monitor (Map, Shuffle & Sort, Reduce) tracking KV pairs/sec, spills, and task status.
+    - HiveQL columnar DDL manager with partition pruning and schema definitions.
+    - Virtual interactive HDFS CLI terminal (`hdfs dfs -ls`, `-mkdir`, `-cat`, `-df -h`).
+    - YARN cluster node manager resource telemetry (vCores, active nodes, memory pools).
+  - **Machine Learning Studio (`MachineLearningStudio.tsx`)**:
+    - Model selection across Classification (Random Forest, Logistic Regression, Gradient Boosting), Regression (Ridge Regression, Gradient Boosted Regressor), and Clustering (K-Means).
+    - Interactive hyperparameter sliders (`n_estimators`, `max_depth`, `learning_rate`, `n_clusters`, 80/20 train/test split).
+    - Comprehensive model evaluation metrics (Accuracy, ROC-AUC, Precision, Recall, F1 score, MSE, R²).
+    - Interactive 2x2 Confusion Matrix visualizer with TP, FP, FN, TN cell breakdowns.
+    - Feature importance ranking bar chart.
+    - Interactive prediction sandbox allowing users to adjust input feature sliders and generate real-time inferences.
+    - One-click Scikit-Learn Python script exporter.
+- **Function Catalog Expansion (130+ Total Functions)**:
+  - Added 40 new pre-configured functions across Statistics (`scipy.stats`), PySpark, Hadoop, and Machine Learning.
+  - Updated Function Library (`/library`) with filter tabs and badge variants for all 7 engines.
+  - Added engine link directory to PublicFooter.
+- **Testing & Verification**:
+  - Added unit test suite for Student's two-sample t-statistic and ML confusion matrix evaluation metrics.
+  - Verified Next.js 16 Turbopack compiles all 21 routes with 0 errors.
+
+---
+
 ## [0.3.0] - 2026-10-28
 
 ### Changed

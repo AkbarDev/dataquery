@@ -13,6 +13,10 @@ export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
     | "python"
     | "sql"
     | "dax"
+    | "statistics"
+    | "pyspark"
+    | "hadoop"
+    | "ml"
     | "pro";
   size?: "sm" | "md";
 }
@@ -47,6 +51,13 @@ export function Badge({
       "bg-blue-500/15 text-blue-400 border border-blue-500/30 font-mono",
     sql: "bg-sky-500/15 text-sky-400 border border-sky-500/30 font-mono",
     dax: "bg-purple-500/15 text-purple-400 border border-purple-500/30 font-mono",
+    statistics:
+      "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-mono",
+    pyspark:
+      "bg-amber-500/15 text-amber-400 border border-amber-500/30 font-mono",
+    hadoop:
+      "bg-cyan-500/15 text-cyan-400 border border-cyan-500/30 font-mono",
+    ml: "bg-fuchsia-500/15 text-fuchsia-400 border border-fuchsia-500/30 font-mono",
     pro: "bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-300 border border-amber-500/40 font-semibold",
   };
 
