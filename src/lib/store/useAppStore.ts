@@ -123,10 +123,10 @@ export const useAppStore = create<AppState>()(
   persist(
     (set, get) => ({
       user: {
-        id: "usr_free_demo",
-        name: "Analyst",
+        id: "usr_community_analyst",
+        name: "Community Analyst",
         email: "analyst@dataquery.in",
-        plan: "free",
+        plan: "community",
         avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120",
       },
       usage: DEFAULT_USAGE,
@@ -134,14 +134,14 @@ export const useAppStore = create<AppState>()(
       setUpgradeModalOpen: (open) => set({ isUpgradeModalOpen: open }),
       upgradeToPro: () =>
         set((state) => ({
-          user: { ...state.user, plan: "pro" },
-          usage: { ...state.usage, currentTier: "pro" },
+          user: { ...state.user, plan: "community" },
+          usage: { ...state.usage, currentTier: "community" },
           isUpgradeModalOpen: false,
         })),
       resetToFree: () =>
         set((state) => ({
-          user: { ...state.user, plan: "free" },
-          usage: { ...state.usage, currentTier: "free" },
+          user: { ...state.user, plan: "community" },
+          usage: { ...state.usage, currentTier: "community" },
         })),
 
       currentDataset: SAMPLE_DATASET,

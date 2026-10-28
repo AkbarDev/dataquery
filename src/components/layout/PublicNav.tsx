@@ -51,7 +51,7 @@ export function PublicNav() {
             href="/pricing"
             className="hover:text-sky-400 transition-colors"
           >
-            Pricing
+            Open Source
           </Link>
           <Link
             href="/security"
@@ -127,7 +127,7 @@ export function PublicNav() {
             className="block text-sm py-2 text-slate-300 hover:text-white"
             onClick={() => setMobileMenuOpen(false)}
           >
-            Pricing
+            Open Source
           </Link>
           <div className="pt-3 border-t border-slate-800 flex flex-col gap-2">
             <Link href="/app/playground" onClick={() => setMobileMenuOpen(false)}>

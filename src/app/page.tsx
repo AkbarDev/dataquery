@@ -54,8 +54,8 @@ export default function HomePage() {
       a: "The DAX tab brings familiar Power BI analytical measures (SUM, CALCULATE, DIVIDE, TOTALYTD) and an interactive visual field builder into the browser without needing a Windows machine or heavy desktop client.",
     },
     {
-      q: "What limits apply to the Free Starter plan?",
-      a: "The Free plan includes 25 MB file uploads, 100,000 rows analysis, 50 runs per day, 1 active connector, 2 dashboards, and 10 AI prompts per month. Pro unlocks 500 MB files, 5 million rows, unlimited runs, and scheduled pipelines.",
+      q: "Is DataQuery really 100% free and open source?",
+      a: "Yes! DataQuery is 100% free and open source. All heavy analytical calculations run locally in your browser using DuckDB-WASM and Pyodide, meaning there are no high server compute costs to charge users for. All features, functions, and recipes are completely unlocked.",
     },
     {
       q: "Can I export my dashboards and reports to PDF or BI tools?",
@@ -433,53 +433,71 @@ ORDER BY total_rev DESC;`}
         </div>
       </section>
 
-      {/* 8. Pricing Teaser */}
+      {/* 8. Open Source Section */}
       <section className="py-20 px-4 sm:px-6 max-w-7xl mx-auto w-full text-center">
         <div className="space-y-3 mb-12">
-          <span className="text-xs font-mono text-amber-400 uppercase tracking-widest font-semibold">Plans</span>
+          <span className="text-xs font-mono text-sky-400 uppercase tracking-widest font-semibold">Open Source</span>
           <h2 className="text-2xl sm:text-4xl font-bold text-slate-100">
-            Simple, Transparent Pricing
+            100% Free &amp; Community Driven
           </h2>
-          <p className="text-xs sm:text-sm text-slate-400">
-            Start completely free. Upgrade when your dataset size and automation demands grow.
+          <p className="text-xs sm:text-sm text-slate-400 max-w-xl mx-auto">
+            Zero subscription fees. Zero artificial dataset paywalls. Zero proprietary vendor lock-in. Powered by local DuckDB-WASM and Pyodide.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 max-w-3xl mx-auto gap-6 text-left">
-          <div className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800 flex flex-col justify-between">
-            <div className="space-y-4">
-              <span className="text-xs font-semibold text-slate-300">Free Starter</span>
-              <div className="text-3xl font-bold text-slate-100">$0</div>
-              <ul className="space-y-2 text-xs text-slate-400">
-                <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-slate-500" /> 25 MB max file upload</li>
-                <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-slate-500" /> 100,000 rows analysis</li>
-                <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-slate-500" /> 50 runs / day</li>
-                <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-slate-500" /> 1 live data connector</li>
-              </ul>
+        <div className="max-w-3xl mx-auto p-8 rounded-2xl bg-gradient-to-br from-slate-900 via-slate-900 to-sky-950/40 border border-sky-500/40 shadow-2xl space-y-6 text-left">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+            <div>
+              <span className="text-xs font-semibold text-sky-400 uppercase tracking-wider font-mono">
+                Community Edition
+              </span>
+              <div className="text-3xl font-extrabold text-slate-100 mt-1">
+                $0 <span className="text-xs font-normal text-slate-400">/ forever free</span>
+              </div>
             </div>
-            <Link href="/app/playground" className="mt-6">
-              <Button variant="outline" size="sm" className="w-full">Start for Free</Button>
-            </Link>
+            <Badge variant="pro" size="md">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>All Capabilities Unlocked</span>
+            </Badge>
           </div>
 
-          <div className="p-6 rounded-2xl bg-gradient-to-br from-slate-900 to-sky-950/40 border-2 border-sky-500/50 flex flex-col justify-between shadow-xl shadow-sky-500/10">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-sky-400">DataQuery Pro</span>
-                <Badge variant="pro" size="sm">Most Popular</Badge>
-              </div>
-              <div className="text-3xl font-bold text-slate-100">
-                $29<span className="text-xs font-normal text-slate-400"> / mo</span>
-              </div>
-              <ul className="space-y-2 text-xs text-slate-300">
-                <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-sky-400" /> 500 MB file upload limit</li>
-                <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-sky-400" /> 5,000,000 rows capacity</li>
-                <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-sky-400" /> Unlimited daily runs</li>
-                <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-sky-400" /> Scheduled Automate pipelines</li>
-              </ul>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-slate-300">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+              <span>Unlimited DuckDB SQL queries</span>
             </div>
-            <Link href="/checkout" className="mt-6">
-              <Button variant="glow" size="sm" className="w-full">Upgrade to Pro</Button>
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+              <span>In-browser Python (pandas &amp; numpy)</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+              <span>Full Power BI DAX analytical measures</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+              <span>8 one-click Automate recipes</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+              <span>Unlimited interactive visual dashboards</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+              <span>Zero-telemetry client-side privacy</span>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
+            <Link href="/app/playground" className="w-full sm:w-auto flex-1">
+              <Button variant="glow" size="md" className="w-full" rightIcon={<ArrowRight className="w-4 h-4" />}>
+                Launch Visual Playground
+              </Button>
+            </Link>
+            <Link href="/pricing" className="w-full sm:w-auto">
+              <Button variant="outline" size="md" className="w-full">
+                View Open Source Manifesto
+              </Button>
             </Link>
           </div>
         </div>

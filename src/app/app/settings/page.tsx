@@ -76,19 +76,19 @@ export default function SettingsPage() {
                 <h3 className="text-sm font-semibold text-slate-100">{user.name}</h3>
                 <p className="text-xs text-slate-400">{user.email}</p>
                 <div className="flex items-center gap-2 mt-1">
-                  <Badge variant={user.plan === "pro" ? "pro" : "outline"} size="sm">
-                    {user.plan === "pro" ? "DataQuery Pro" : "Free Starter Plan"}
+                  <Badge variant="pro" size="sm">
+                    Community Open Source (All Features Unlocked)
                   </Badge>
                 </div>
               </div>
             </div>
 
             <Button
-              variant={user.plan === "free" ? "glow" : "secondary"}
+              variant="outline"
               size="sm"
               onClick={() => setUpgradeModalOpen(true)}
             >
-              {user.plan === "free" ? "Upgrade to Pro" : "Manage Subscription"}
+              Open Source Info
             </Button>
           </div>
         </div>
@@ -98,45 +98,45 @@ export default function SettingsPage() {
           <div className="flex items-center justify-between pb-3 border-b border-slate-800">
             <div className="flex items-center gap-2">
               <Database className="w-4 h-4 text-purple-400" />
-              <h2 className="text-sm font-bold text-slate-100">Usage Meters &amp; Tier Limits</h2>
+              <h2 className="text-sm font-bold text-slate-100">Local Execution &amp; Resource Allocation</h2>
             </div>
-            <span className="text-xs font-mono text-slate-400">Cycle Resets Daily</span>
+            <span className="text-xs font-mono text-emerald-400">100% Client-Side Engine</span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs font-mono">
             <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
-              <span className="text-[10px] text-slate-500 uppercase block">Daily Queries &amp; Runs</span>
+              <span className="text-[10px] text-slate-500 uppercase block">Analytical Operations</span>
               <div className="text-xl font-bold text-slate-100">
-                {usage.runsToday} / {user.plan === "pro" ? "∞" : plan.dailyRunsLimit}
+                {usage.runsToday} / Unlimited
               </div>
               <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-sky-400 rounded-full"
-                  style={{ width: `${Math.min((usage.runsToday / plan.dailyRunsLimit) * 100, 100)}%` }}
+                  style={{ width: "100%" }}
                 />
               </div>
             </div>
 
             <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
-              <span className="text-[10px] text-slate-500 uppercase block">Monthly AI Copilot Prompts</span>
+              <span className="text-[10px] text-slate-500 uppercase block">Copilot AI Insights</span>
               <div className="text-xl font-bold text-slate-100">
-                {usage.aiPromptsThisMonth} / {plan.aiPromptsMonthlyLimit}
+                {usage.aiPromptsThisMonth} / Unlimited
               </div>
               <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-purple-400 rounded-full"
-                  style={{ width: `${(usage.aiPromptsThisMonth / plan.aiPromptsMonthlyLimit) * 100}%` }}
+                  style={{ width: "100%" }}
                 />
               </div>
             </div>
 
             <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
-              <span className="text-[10px] text-slate-500 uppercase block">Max File Upload Size</span>
+              <span className="text-[10px] text-slate-500 uppercase block">Dataset Processing Limit</span>
               <div className="text-xl font-bold text-slate-100">
-                {plan.maxFileSizeBytes / (1024 * 1024)} MB
+                RAM-Bound
               </div>
               <span className="text-[10px] text-emerald-400 block font-sans">
-                {user.plan === "pro" ? "Up to 5M rows" : "Up to 100k rows"}
+                Up to 100M+ rows via DuckDB-WASM
               </span>
             </div>
           </div>

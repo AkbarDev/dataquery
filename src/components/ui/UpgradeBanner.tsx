@@ -1,7 +1,8 @@
 "use client";
 
 import React from "react";
-import { Sparkles, ArrowRight, ShieldCheck } from "lucide-react";
+import { Sparkles, ArrowRight } from "lucide-react";
+import { GithubIcon } from "@/components/ui/GithubIcon";
 import { Button } from "./Button";
 import { cn } from "@/lib/utils";
 
@@ -12,7 +13,6 @@ export interface UpgradeBannerProps {
 }
 
 export function UpgradeBanner({
-  onUpgrade,
   compact = false,
   className,
 }: UpgradeBannerProps) {
@@ -20,22 +20,27 @@ export function UpgradeBanner({
     return (
       <div
         className={cn(
-          "p-3 rounded-lg bg-gradient-to-r from-amber-500/10 via-sky-500/10 to-purple-500/10 border border-amber-500/30 flex items-center justify-between text-xs",
+          "p-3 rounded-lg bg-gradient-to-r from-sky-500/10 via-indigo-500/10 to-purple-500/10 border border-sky-500/30 flex items-center justify-between text-xs",
           className
         )}
       >
         <div className="flex items-center gap-2 text-slate-200">
-          <Sparkles className="w-4 h-4 text-amber-400 shrink-0" />
-          <span>Unlock 100k+ rows, Automate scheduling & custom exports on <strong>Pro</strong>.</span>
+          <Sparkles className="w-4 h-4 text-sky-400 shrink-0" />
+          <span><strong>100% Free & Open Source:</strong> Unlimited runs, full DuckDB, Python & DAX engines unlocked.</span>
         </div>
-        <Button
-          size="xs"
-          variant="glow"
-          onClick={onUpgrade}
-          rightIcon={<ArrowRight className="w-3 h-3" />}
+        <a
+          href="https://github.com/AkbarDev/dataquery"
+          target="_blank"
+          rel="noreferrer"
         >
-          Upgrade
-        </Button>
+          <Button
+            size="xs"
+            variant="outline"
+            leftIcon={<GithubIcon className="w-3 h-3" />}
+          >
+            Star on GitHub
+          </Button>
+        </a>
       </div>
     );
   }
@@ -43,37 +48,43 @@ export function UpgradeBanner({
   return (
     <div
       className={cn(
-        "p-5 rounded-2xl bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 border border-amber-500/30 relative overflow-hidden shadow-xl",
+        "p-5 rounded-2xl bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 border border-sky-500/30 relative overflow-hidden shadow-xl",
         className
       )}
     >
-      <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-0 right-0 w-64 h-64 bg-sky-500/5 rounded-full blur-3xl pointer-events-none" />
 
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative z-10">
         <div className="space-y-1">
-          <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 text-xs font-semibold">
+          <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-sky-500/15 text-sky-300 text-xs font-semibold">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Power Up Your Analytics</span>
+            <span>100% Free &amp; Open Source</span>
           </div>
           <h3 className="text-base font-bold text-slate-100">
-            Scale with DataQuery Pro
+            All Features Unlocked For Everyone
           </h3>
           <p className="text-xs text-slate-400 max-w-md leading-relaxed">
-            Get unlimited runs, 500 MB file sizes, live connector syncing, advanced DAX & DuckDB window functions, and unbranded PDF reports.
+            DataQuery is community-driven. Run unlimited queries with DuckDB, execute client-side Python scripts, use all DAX formulas, and export unbranded executive PDF reports with zero cost.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
-          <Button
-            variant="glow"
-            size="md"
-            onClick={onUpgrade}
-            rightIcon={<ArrowRight className="w-4 h-4" />}
+          <a
+            href="https://github.com/AkbarDev/dataquery"
+            target="_blank"
+            rel="noreferrer"
           >
-            Upgrade to Pro
-          </Button>
+            <Button
+              variant="outline"
+              size="md"
+              leftIcon={<GithubIcon className="w-4 h-4" />}
+            >
+              Star on GitHub
+            </Button>
+          </a>
         </div>
       </div>
     </div>
   );
 }
+

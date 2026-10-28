@@ -119,13 +119,12 @@ export default function DashboardsPage() {
               Refresh
             </Button>
 
-            {/* Schedule Button (Pro Gated) */}
+            {/* Schedule Button */}
             <Button
               variant="secondary"
               size="xs"
               onClick={handleScheduleClick}
-              leftIcon={<Clock className="w-3 h-3 text-amber-400" />}
-              rightIcon={user.plan === "free" ? <LockBadge label="Pro" /> : undefined}
+              leftIcon={<Clock className="w-3 h-3 text-sky-400" />}
             >
               Schedule
             </Button>

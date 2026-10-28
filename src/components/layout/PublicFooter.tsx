@@ -34,7 +34,7 @@ export function PublicFooter() {
               <li><Link href="/connectors" className="hover:text-slate-200">Connectors</Link></li>
               <li><Link href="/library" className="hover:text-slate-200">Function Library</Link></li>
               <li><Link href="/templates" className="hover:text-slate-200">Templates</Link></li>
-              <li><Link href="/pricing" className="hover:text-slate-200">Pricing & Plans</Link></li>
+              <li><Link href="/pricing" className="hover:text-slate-200">Open Source Manifesto</Link></li>
             </ul>
           </div>
 

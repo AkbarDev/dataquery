@@ -94,34 +94,29 @@ function AppNavContent() {
           })}
         </nav>
 
-        {/* Right: Usage Meter + Upgrade / Plan Pill + Settings */}
+        {/* Right: Usage Meter + Open Source Badge + Settings */}
         <div className="flex items-center space-x-3">
           {/* Usage Meter */}
-          <Tooltip content={`${usage.runsToday} of ${planConfig.dailyRunsLimit} runs used today`}>
+          <Tooltip content={`${usage.runsToday} local analytical operations executed in browser sandbox`}>
             <div className="hidden sm:flex items-center gap-2 px-2.5 py-1 rounded-md bg-slate-900 border border-slate-800 text-xs text-slate-300">
               <Database className="w-3.5 h-3.5 text-sky-400" />
               <span className="font-mono text-[11px]">
-                {usage.runsToday}/{isPro ? "∞" : planConfig.dailyRunsLimit} runs
+                {usage.runsToday} queries · Local WASM
               </span>
             </div>
           </Tooltip>
 
-          {/* Plan Badge or Upgrade CTA */}
-          {isPro ? (
+          {/* Open Source Community Badge */}
+          <button
+            onClick={() => setUpgradeModalOpen(true)}
+            className="cursor-pointer"
+            title="Open Source Community Edition - All features unlocked"
+          >
             <Badge variant="pro" size="md">
-              <Sparkles className="w-3 h-3" />
-              <span>Pro Plan</span>
+              <Sparkles className="w-3 h-3 text-sky-400" />
+              <span>Open Source</span>
             </Badge>
-          ) : (
-            <Button
-              variant="glow"
-              size="xs"
-              onClick={() => setUpgradeModalOpen(true)}
-              leftIcon={<Sparkles className="w-3 h-3 text-amber-300" />}
-            >
-              Upgrade
-            </Button>
-          )}
+          </button>
 
           <Link href="/app/settings" title="Settings">
             <button className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors cursor-pointer">

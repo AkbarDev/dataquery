@@ -32,15 +32,12 @@ test("Formula Evaluator - SUM, AVERAGE, and DIVIDE with zero-defense", () => {
   assert.equal(evaluateDivide(100, 0, 0), 0);
 });
 
-test("Plan Limits & Gating Verification", () => {
-  const freeLimits = { dailyRuns: 50, maxFileSizeMB: 25, maxRows: 100000 };
-  const proLimits = { dailyRuns: Infinity, maxFileSizeMB: 500, maxRows: 5000000 };
+test("Open Source Limits & Gating Verification", () => {
+  const communityLimits = { dailyRuns: 999999, maxFileSizeMB: 1024, maxRows: 100000000 };
 
-  // Free plan checks
-  assert.equal(freeLimits.dailyRuns <= 50, true);
-  assert.equal(freeLimits.maxFileSizeMB, 25);
-
-  // Pro plan checks
-  assert.equal(proLimits.dailyRuns > 10000, true);
-  assert.equal(proLimits.maxFileSizeMB, 500);
+  // Open Source Community checks: all operations unrestricted
+  assert.equal(communityLimits.dailyRuns >= 999999, true);
+  assert.equal(communityLimits.maxFileSizeMB >= 1024, true);
+  assert.equal(communityLimits.maxRows >= 100000000, true);
 });
+

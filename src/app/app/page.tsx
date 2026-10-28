@@ -55,10 +55,8 @@ export default function WorkspaceHomePage() {
           </div>
         </div>
 
-        {/* Upgrade Banner for Free Users */}
-        {user.plan === "free" && (
-          <UpgradeBanner onUpgrade={() => setUpgradeModalOpen(true)} />
-        )}
+        {/* Open Source Community Banner */}
+        <UpgradeBanner />
 
         {/* Quick Start Options */}
         <div className="space-y-3">

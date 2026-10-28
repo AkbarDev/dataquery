@@ -1,10 +1,10 @@
 # ⚡ DataQuery Web (`dataquery.in`)
 
-> **Hosted, All-in-One Data Build Tool & Analytics Playground**  
+> **100% Free & Open-Source All-in-One Data Build Tool & Analytics Playground**  
 > **Production Live URL**: **[https://dataquery-eight.vercel.app](https://dataquery-eight.vercel.app)**  
-> **Custom Domain**: **`https://dataquery.in`**  
+> **Custom Domain**: **`https://dataquery.in`** (or `https://www.dataquery.in`)  
 > **GitHub Repository**: **[AkbarDev/dataquery](https://github.com/AkbarDev/dataquery)**  
-> Ingest raw files (CSV, Excel) or connected feeds, explore in a multi-engine Visual Playground (Python pandas, DuckDB SQL, DAX-style Power BI), trigger Automate recipes, pin findings to live dashboards, and download AI-written executive reports.
+> Ingest raw files (CSV, Excel) or connected feeds, explore in a multi-engine Visual Playground (Python pandas via Pyodide, DuckDB SQL, DAX-style Power BI), trigger Automate recipes, pin findings to live dashboards, and download AI-written executive reports — completely free with zero subscription paywalls.
 
 ---
 
@@ -12,15 +12,15 @@
 
 | Screen / Feature | Route | Live URL | Description |
 | :--- | :--- | :--- | :--- |
-| **Home Page** | `/` | [View Live](https://dataquery-eight.vercel.app/) | 10-section landing page with interactive hero preview, demo strip, and 8-question FAQ. |
-| **Visual Playground** | `/app/playground` | [View Live](https://dataquery-eight.vercel.app/app/playground) | 3-pane analytical workspace with Python, DuckDB SQL, Power BI DAX builder, and 8 Automate presets. |
+| **Home Page** | `/` | [View Live](https://dataquery-eight.vercel.app/) | 10-section landing page with interactive hero preview, demo strip, open-source highlights, and FAQ. |
+| **Visual Playground** | `/app/playground` | [View Live](https://dataquery-eight.vercel.app/app/playground) | 3-pane analytical workspace with Python, DuckDB SQL, Power BI DAX builder, and 8 Automate presets. All features unlocked. |
 | **Function Library** | `/library` | [View Live](https://dataquery-eight.vercel.app/library) | 90+ searchable functions (30 Python, 30 SQL, 30 DAX) with *"Try on my data"* and *"+ Chain"* buttons. |
 | **Data Connectors** | `/connectors` | [View Live](https://dataquery-eight.vercel.app/connectors) | Tile grid of 9 data sources with a 3-step connection wizard (Choose, Authorize, Select Tables). |
-| **Dashboards** | `/app/dashboards` | [View Live](https://dataquery-eight.vercel.app/app/dashboards) | KPI cards, pinned Recharts visuals, date filters, Pro scheduling, and Apache Superset iframe slot. |
+| **Dashboards** | `/app/dashboards` | [View Live](https://dataquery-eight.vercel.app/app/dashboards) | KPI cards, pinned Recharts visuals, date filters, automated pipeline scheduling, and Apache Superset iframe slot. |
 | **Executive AI Reports** | `/app/reports` | [View Live](https://dataquery-eight.vercel.app/app/reports) | AI narrative report with 3 findings, 2 prescriptive actions, charts, and vector PDF printing. |
-| **Pricing & Plans** | `/pricing` | [View Live](https://dataquery-eight.vercel.app/pricing) | Free Starter vs. DataQuery Pro comparison matrix with annual billing toggle (20% discount). |
-| **Workspace Settings** | `/app/settings` | [View Live](https://dataquery-eight.vercel.app/app/settings) | Account profile, daily quota meters, API token generator, and permanent *"Delete My Data"* action. |
-| **Test Checkout** | `/checkout` | [View Live](https://dataquery-eight.vercel.app/checkout) | Simulated sandbox checkout clearly labeled **TEST MODE** for testing Pro tier upgrades. |
+| **Open Source Manifesto** | `/pricing` | [View Live](https://dataquery-eight.vercel.app/pricing) | Zero-cost transparency page comparing traditional SaaS data tools with community-owned local WASM analytics. |
+| **Workspace Settings** | `/app/settings` | [View Live](https://dataquery-eight.vercel.app/app/settings) | Account profile, local resource meters, API token generator, and permanent *"Delete My Data"* privacy action. |
+| **Open Source Notice** | `/checkout` | [View Live](https://dataquery-eight.vercel.app/checkout) | Open source notice confirming all capabilities are permanently unlocked with zero checkout or credit card needed. |
 | **Security Whitepaper** | `/security` | [View Live](https://dataquery-eight.vercel.app/security) | Client-side WASM isolation guarantees and zero-telemetry privacy policy. |
 
 ---
@@ -58,6 +58,15 @@ This section documents all technical challenges, architectural workarounds, and 
 - **Problem**: Next.js production builds were attempting to typecheck non-compiled testing scripts and end-to-end specs.
 - **Workaround Applied**:
   - Configured [`tsconfig.json`](tsconfig.json) to exclude `"tests"` and `"src/**/__tests__"` from production compilation, allowing `next build` to complete in under 1 second.
+
+### 6. Transition to 100% Free & Open-Source (Removal of Plan Paywalls)
+- **Problem**: Earlier iterations included artificial Free vs. Pro feature tiers (file size limits, daily query caps, and locked DAX/SQL functions) intended for a commercial SaaS model.
+- **Decision & Solution**:
+  - Transitioned DataQuery to an entirely free, open-source community platform.
+  - Removed all artificial plan restrictions from [`src/lib/plans.ts`](src/lib/plans.ts): `checkPlanPermission()` unconditionally grants full access to all features.
+  - Unlocked unlimited daily query runs, 100M+ row processing through DuckDB-WASM, all 90 analytical formulas, unbranded PDF exports, and automated pipeline scheduling for everyone.
+  - Replaced checkout prompts and upgrade lock badges with Community Open Source badges and links to GitHub.
+  - Created a custom vector [`src/components/ui/GithubIcon.tsx`](src/components/ui/GithubIcon.tsx) for zero-dependency brand rendering across Next.js Turbopack SSR builds.
 
 ---
 

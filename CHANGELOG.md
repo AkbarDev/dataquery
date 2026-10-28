@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.3.0] - 2026-10-28
+
+### Changed
+- **100% Free & Open-Source Transition**:
+  - Removed artificial Free vs. Pro tier paywalls, file size upload barriers, daily query quotas, and function locks.
+  - Set all plan permissions in `src/lib/plans.ts` to unrestricted community open-source access.
+  - Replaced `/pricing` with the **Open Source & Zero-Cost Manifesto**, highlighting browser-native DuckDB-WASM and Pyodide compute advantages over expensive closed-source SaaS.
+  - Replaced `/checkout` with an open-source notification informing visitors that all enterprise capabilities are 100% free and ready to use without credit cards.
+  - Updated application header, dashboard, and settings meters to reflect unrestricted local WASM query capacity.
+  - Added custom vector `src/components/ui/GithubIcon.tsx` for fast, zero-dependency brand rendering across SSR builds.
+  - Updated all unit tests and verified full static prerendering across all 21 routes.
+
+---
+
 ## [0.2.1] - 2026-10-28
 
 ### Added
