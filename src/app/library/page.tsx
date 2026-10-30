@@ -69,7 +69,7 @@ export default function FunctionLibraryPage() {
       setMlCode(`# Loaded ML pipeline: ${fn.name}\n${fn.snippet}`);
     }
     toast.success("Snippet Loaded", `Opening Playground with "${fn.name}" snippet ready.`);
-    router.push("/app/playground");
+    router.push(`/app/playground?tab=${fn.language}`);
   };
 
   const handleAddToAutomateChain = (fn: FunctionItem) => {
@@ -86,12 +86,12 @@ export default function FunctionLibraryPage() {
       <main className="flex-1 py-14 px-4 sm:px-6 max-w-7xl mx-auto w-full">
         {/* Header */}
         <div className="text-center space-y-3 max-w-2xl mx-auto mb-10">
-          <Badge variant="info" size="md">130+ Pre-Configured Functions & Models</Badge>
+          <Badge variant="info" size="md">140+ Pre-Configured Functions &amp; ML Models</Badge>
           <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-100 tracking-tight">
             The DataQuery Function Library
           </h1>
           <p className="text-xs sm:text-sm text-slate-400">
-            Search curated transformations across Python Pandas, DuckDB SQL, Power BI DAX, Statistics, PySpark, Hadoop, and Scikit-Learn ML models. Click to test on your own data instantly.
+            Search curated transformations across Python Pandas, DuckDB SQL, Power BI DAX, Statistics, PySpark, Hadoop, and 16 Machine Learning algorithms explained simply. Click to test on your own data instantly.
           </p>
         </div>
 

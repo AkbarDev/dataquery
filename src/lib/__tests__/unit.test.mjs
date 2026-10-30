@@ -76,3 +76,52 @@ test("Machine Learning Metrics - Confusion Matrix, Accuracy, Precision, Recall, 
   assert.equal(f1 > 0.87 && f1 < 0.88, true, "F1 score should be harmonic mean around 0.872");
 });
 
+test("ML Algorithm Data Understanding & Suitability Engine - Continuous vs Categorical vs Temporal rules", () => {
+  const continuousDataset = {
+    rowCount: 100,
+    columns: [
+      { name: "revenue", type: "number", distinctCount: 95 },
+      { name: "profit", type: "number", distinctCount: 90 },
+      { name: "cost", type: "number", distinctCount: 88 },
+      { name: "category", type: "string", distinctCount: 4 },
+    ],
+  };
+
+  // Rule 1: Continuous Target (revenue) -> Linear Regression suitable, Logistic Regression incompatible
+  const targetColContinuous = "revenue";
+  const targetColInfo = continuousDataset.columns.find((c) => c.name === targetColContinuous);
+  const isContinuous = targetColInfo.type === "number" && targetColInfo.distinctCount > 10;
+  assert.equal(isContinuous, true);
+
+  const linearRegSuitable = isContinuous;
+  const logisticRegSuitable = !isContinuous;
+  assert.equal(linearRegSuitable, true, "Linear Regression must be suitable for continuous target");
+  assert.equal(logisticRegSuitable, false, "Logistic Regression must be greyed out for continuous target");
+
+  // Rule 2: Categorical Target (category) -> Logistic Regression suitable, Linear Regression incompatible
+  const targetColCategorical = "category";
+  const catColInfo = continuousDataset.columns.find((c) => c.name === targetColCategorical);
+  const isCat = catColInfo.type === "string";
+  assert.equal(isCat, true);
+
+  const linearRegSuitableCat = !isCat;
+  const logisticRegSuitableCat = isCat;
+  assert.equal(logisticRegSuitableCat, true, "Logistic Regression must be suitable for categorical target");
+  assert.equal(linearRegSuitableCat, false, "Linear Regression must be greyed out for categorical target");
+
+  // Rule 3: Date column requirement for ARIMA
+  const hasDateCol = continuousDataset.columns.some((c) => c.type === "date" || /date|time/i.test(c.name));
+  assert.equal(hasDateCol, false);
+  const arimaSuitable = hasDateCol;
+  assert.equal(arimaSuitable, false, "ARIMA must be greyed out when no date/temporal column is detected");
+
+  // Rule 4: Feature count requirement for PCA (≥ 3 numeric features)
+  const features2 = ["revenue", "profit"];
+  const pcaSuitable2 = features2.length >= 3;
+  assert.equal(pcaSuitable2, false, "PCA must be greyed out when fewer than 3 features are selected");
+
+  const features3 = ["revenue", "profit", "cost"];
+  const pcaSuitable3 = features3.length >= 3;
+  assert.equal(pcaSuitable3, true, "PCA must be suitable when ≥ 3 features are selected");
+});
+

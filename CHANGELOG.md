@@ -7,6 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.4.1] - 2026-10-30
+
+### Added
+- **Machine Learning Algorithms Explained Simply**:
+  - Implemented the complete 16-algorithm architecture from the "Machine Learning Algorithms Explained Simply" infographic:
+    - **Logistic Regression**: "Predicts the probability of a class label."
+    - **Linear Regression**: "Predicts continuous values using a best-fit line."
+    - **Gradient Boosting**: "Builds models step by step to reduce errors."
+    - **Principal Component Analysis (PCA)**: "Reduces dimensions while keeping key patterns."
+    - **Decision Tree**: "Splits data into branches to make decisions."
+    - **Neural Networks**: "Learns complex patterns through connected layers."
+    - **Random Forest**: "Combines many trees to improve prediction accuracy."
+    - **DBSCAN**: "Finds dense clusters and detects outliers."
+    - **Support Vector Machine (SVM)**: "Finds the best boundary between classes."
+    - **Hierarchical Clustering**: "Builds clusters in a tree-like hierarchy."
+    - **Naive Bayes**: "Uses probabilities to classify data quickly."
+    - **ARIMA**: "Forecasts time-series data using past trends."
+    - **K-Nearest Neighbors (KNN)**: "Classifies using the labels of nearby points."
+    - **K-Means Clustering**: "Groups similar data into K clusters."
+    - **Apriori**: "Finds frequent item patterns and association rules."
+    - **XGBOOST**: "A fast boosting method for strong predictive performance."
+- **Data Understanding & Suitability Greying Engine**:
+  - Automatically identifies dataset characteristics: sample counts, feature data types, continuous vs. discrete target attributes, and temporal sequences.
+  - Dynamically computes suitability for each algorithm, marking suitable models with green `✓ Suitable` badges while greying out incompatible models with clear diagnostic explanations.
+  - Added filter toggle controls: `All (16)`, `Suitable Only`, and `Greyed Out`.
+- **Testing & Quality**:
+  - Added unit test suite in `src/lib/__tests__/unit.test.mjs` verifying suitability rules for continuous, categorical, dimensional, and temporal constraints.
+  - Compiled and verified with 0 errors on Next.js 16 Turbopack across all 21 routes.
+
+---
+
 ## [0.4.0] - 2026-10-28
 
 ### Added

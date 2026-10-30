@@ -1,4 +1,4 @@
-import { Dataset, FunctionItem, ConnectorItem } from "./types";
+import { Dataset, FunctionItem, ConnectorItem, MLAlgorithmInfo } from "./types";
 
 export const SAMPLE_DATASET: Dataset = {
   id: "ds_sales_sample",
@@ -185,17 +185,430 @@ export const SEEDED_FUNCTIONS: FunctionItem[] = [
   { id: "hive_bucketing", name: "Hive CLUSTERED BY Bucketing", language: "hadoop", level: "advanced", description: "Hash bucket large tables for ultra-fast merge joins.", example: "CLUSTERED BY (customer_id) INTO 16 BUCKETS", snippet: "CREATE TABLE warehouse.sales_bucketed (\n    order_id STRING, customer_id STRING, revenue DOUBLE\n)\nCLUSTERED BY (customer_id) INTO 16 BUCKETS\nSTORED AS ORC;" },
   { id: "hadoop_streaming", name: "Hadoop Streaming (Python)", language: "hadoop", level: "intermediate", description: "Run native Python mapper and reducer scripts over standard I/O.", example: "hadoop jar hadoop-streaming.jar -mapper mapper.py -reducer reducer.py", snippet: "hadoop jar /opt/hadoop/hadoop-streaming.jar \\\n  -input /data/sales.csv \\\n  -output /data/output_py/ \\\n  -mapper \"python3 mapper.py\" \\\n  -reducer \"python3 reducer.py\"" },
 
-  // --- MACHINE LEARNING PLAYGROUND ---
-  { id: "ml_random_forest_clf", name: "RandomForestClassifier", language: "ml", level: "basic", description: "Train ensemble of decision trees for robust classification.", example: "RandomForestClassifier(n_estimators=100, max_depth=5)", snippet: "from sklearn.ensemble import RandomForestClassifier\nclf = RandomForestClassifier(n_estimators=100, max_depth=5, random_state=42)\nclf.fit(X_train, y_train)\nprint(f'Train Accuracy: {clf.score(X_train, y_train)*100:.1f}%')" },
-  { id: "ml_logistic_reg", name: "LogisticRegression", language: "ml", level: "basic", description: "Predict binary outcomes with probabilistic sigmoid classification.", example: "LogisticRegression(max_iter=1000, C=1.0)", snippet: "from sklearn.linear_model import LogisticRegression\nmodel = LogisticRegression(max_iter=1000)\nmodel.fit(X_train, y_train)\nprint(f'Test Accuracy: {model.score(X_test, y_test)*100:.1f}%')" },
-  { id: "ml_train_test_split", name: "train_test_split (80/20)", language: "ml", level: "basic", description: "Partition features and target into reproducible training and testing sets.", example: "train_test_split(X, y, test_size=0.2, random_state=42)", snippet: "from sklearn.model_selection import train_test_split\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)\nprint(f'Train samples: {len(X_train)}, Test samples: {len(X_test)}')" },
-  { id: "ml_confusion_matrix", name: "Confusion Matrix & Heatmap", language: "ml", level: "intermediate", description: "Analyze True Positives, False Positives, True Negatives, and False Negatives.", example: "confusion_matrix(y_test, preds)", snippet: "from sklearn.metrics import confusion_matrix, classification_report\ncm = confusion_matrix(y_test, preds)\nprint('Confusion Matrix:\\n', cm)\nprint('Classification Report:\\n', classification_report(y_test, preds))" },
-  { id: "ml_roc_auc", name: "ROC-AUC Score & Curve", language: "ml", level: "intermediate", description: "Evaluate model discrimination power across all classification thresholds.", example: "roc_auc_score(y_test, probabilities)", snippet: "from sklearn.metrics import roc_auc_score, roc_curve\nprobs = clf.predict_proba(X_test)[:, 1]\nauc = roc_auc_score(y_test, probs)\nprint(f'ROC-AUC Score: {auc:.4f}')" },
-  { id: "ml_linear_reg", name: "LinearRegression (Continuous)", language: "ml", level: "basic", description: "Predict numeric target variable with R-squared and MSE metrics.", example: "LinearRegression().fit(X_train, y_train)", snippet: "from sklearn.linear_model import LinearRegression\nfrom sklearn.metrics import r2_score, mean_squared_error\nreg = LinearRegression().fit(X_train, y_train)\npreds = reg.predict(X_test)\nprint(f'R2 Score: {r2_score(y_test, preds):.3f}, RMSE: {mean_squared_error(y_test, preds, squared=False):.2f}')" },
-  { id: "ml_kmeans", name: "K-Means Customer Clustering", language: "ml", level: "intermediate", description: "Unsupervised cluster segmentation into optimal K centroids.", example: "KMeans(n_clusters=4, random_state=42)", snippet: "from sklearn.cluster import KMeans\nkmeans = KMeans(n_clusters=3, random_state=42)\ndf['cluster_id'] = kmeans.fit_predict(df[['revenue', 'profit']])\nprint('Cluster counts:\\n', df['cluster_id'].value_counts())" },
-  { id: "ml_gradient_boosting", name: "GradientBoostingClassifier", language: "ml", level: "advanced", description: "Sequential boosting model minimizing residual loss (XGBoost style).", example: "GradientBoostingClassifier(learning_rate=0.1, n_estimators=100)", snippet: "from sklearn.ensemble import GradientBoostingClassifier\ngb = GradientBoostingClassifier(learning_rate=0.1, n_estimators=100, random_state=42)\ngb.fit(X_train, y_train)\nprint(f'Gradient Boosting Accuracy: {gb.score(X_test, y_test)*100:.1f}%')" },
-  { id: "ml_standard_scaler", name: "StandardScaler Feature Scaling", language: "ml", level: "basic", description: "Zero-mean and unit-variance normalization for distance-based models.", example: "StandardScaler().fit_transform(X)", snippet: "from sklearn.preprocessing import StandardScaler\nscaler = StandardScaler()\nX_scaled = scaler.fit_transform(df[['revenue', 'profit', 'units_sold']])\nprint(f'Scaled features shape: {X_scaled.shape}')" },
-  { id: "ml_feature_importance", name: "Feature Importance Ranking", language: "ml", level: "advanced", description: "Rank features by Gini impurity reduction across all decision tree nodes.", example: "clf.feature_importances_", snippet: "import pandas as pd\nimport matplotlib.pyplot as plt\nimp = pd.Series(clf.feature_importances_, index=features).sort_values(ascending=False)\nprint('Feature Importance:\\n', imp)" },
+  // --- MACHINE LEARNING PLAYGROUND (16 ALGORITHMS EXPLAINED SIMPLY) ---
+  { id: "ml_logistic_regression", name: "Logistic Regression", language: "ml", level: "basic", description: "Predicts the probability of a class label.", example: "LogisticRegression(max_iter=1000)", snippet: "from sklearn.linear_model import LogisticRegression\nmodel = LogisticRegression(max_iter=1000)\nmodel.fit(X_train, y_train)\nprint(f'Test Accuracy: {model.score(X_test, y_test)*100:.1f}%')" },
+  { id: "ml_linear_regression", name: "Linear Regression", language: "ml", level: "basic", description: "Predicts continuous values using a best-fit line.", example: "LinearRegression().fit(X_train, y_train)", snippet: "from sklearn.linear_model import LinearRegression\nreg = LinearRegression().fit(X_train, y_train)\nprint(f'R2 Score: {reg.score(X_test, y_test):.3f}')" },
+  { id: "ml_gradient_boosting", name: "Gradient Boosting", language: "ml", level: "advanced", description: "Builds models step by step to reduce errors.", example: "GradientBoostingClassifier(n_estimators=100)", snippet: "from sklearn.ensemble import GradientBoostingClassifier\ngb = GradientBoostingClassifier(n_estimators=100, random_state=42)\ngb.fit(X_train, y_train)\nprint(f'GB Accuracy: {gb.score(X_test, y_test)*100:.1f}%')" },
+  { id: "ml_pca", name: "Principal Component Analysis (PCA)", language: "ml", level: "advanced", description: "Reduces dimensions while keeping key patterns.", example: "PCA(n_components=2).fit_transform(X)", snippet: "from sklearn.decomposition import PCA\npca = PCA(n_components=2)\nX_pca = pca.fit_transform(X_scaled)\nprint(f'Explained Variance Ratio: {pca.explained_variance_ratio_}')" },
+  { id: "ml_decision_tree", name: "Decision Tree", language: "ml", level: "basic", description: "Splits data into branches to make decisions.", example: "DecisionTreeClassifier(max_depth=5)", snippet: "from sklearn.tree import DecisionTreeClassifier\ndt = DecisionTreeClassifier(max_depth=5, random_state=42)\ndt.fit(X_train, y_train)\nprint(f'DT Accuracy: {dt.score(X_test, y_test)*100:.1f}%')" },
+  { id: "ml_neural_networks", name: "Neural Networks (MLP)", language: "ml", level: "advanced", description: "Learns complex patterns through connected layers.", example: "MLPClassifier(hidden_layer_sizes=(64, 32))", snippet: "from sklearn.neural_network import MLPClassifier\nmlp = MLPClassifier(hidden_layer_sizes=(64, 32), max_iter=500, random_state=42)\nmlp.fit(X_train, y_train)\nprint(f'Neural Net Accuracy: {mlp.score(X_test, y_test)*100:.1f}%')" },
+  { id: "ml_random_forest", name: "Random Forest", language: "ml", level: "basic", description: "Combines many trees to improve prediction accuracy.", example: "RandomForestClassifier(n_estimators=100)", snippet: "from sklearn.ensemble import RandomForestClassifier\nrf = RandomForestClassifier(n_estimators=100, max_depth=6, random_state=42)\nrf.fit(X_train, y_train)\nprint(f'Random Forest Accuracy: {rf.score(X_test, y_test)*100:.1f}%')" },
+  { id: "ml_dbscan", name: "DBSCAN", language: "ml", level: "intermediate", description: "Finds dense clusters and detects outliers.", example: "DBSCAN(eps=0.5, min_samples=3)", snippet: "from sklearn.cluster import DBSCAN\ndb = DBSCAN(eps=0.5, min_samples=3).fit(X_scaled)\nprint(f'Clusters found: {len(set(db.labels_)) - (1 if -1 in db.labels_ else 0)}')" },
+  { id: "ml_svm", name: "Support Vector Machine (SVM)", language: "ml", level: "intermediate", description: "Finds the best boundary between classes.", example: "SVC(kernel='rbf', C=1.0)", snippet: "from sklearn.svm import SVC\nsvm = SVC(kernel='rbf', C=1.0)\nsvm.fit(X_train_sc, y_train)\nprint(f'SVM Accuracy: {svm.score(X_test_sc, y_test)*100:.1f}%')" },
+  { id: "ml_hierarchical", name: "Hierarchical Clustering", language: "ml", level: "intermediate", description: "Builds clusters in a tree-like hierarchy.", example: "AgglomerativeClustering(n_clusters=3)", snippet: "from sklearn.cluster import AgglomerativeClustering\nhc = AgglomerativeClustering(n_clusters=3)\nclusters = hc.fit_predict(X)\nprint('Cluster counts:', pd.Series(clusters).value_counts())" },
+  { id: "ml_naive_bayes", name: "Naive Bayes", language: "ml", level: "basic", description: "Uses probabilities to classify data quickly.", example: "GaussianNB()", snippet: "from sklearn.naive_bayes import GaussianNB\nnb = GaussianNB()\nnb.fit(X_train, y_train)\nprint(f'Naive Bayes Accuracy: {nb.score(X_test, y_test)*100:.1f}%')" },
+  { id: "ml_arima", name: "ARIMA", language: "ml", level: "advanced", description: "Forecasts time-series data using past trends.", example: "ARIMA(ts, order=(1,1,1)).fit()", snippet: "from statsmodels.tsa.arima.model import ARIMA\nmodel = ARIMA(ts, order=(1, 1, 1))\nfitted = model.fit()\nprint(fitted.forecast(steps=7))" },
+  { id: "ml_knn", name: "K-Nearest Neighbors (KNN)", language: "ml", level: "basic", description: "Classifies using the labels of nearby points.", example: "KNeighborsClassifier(n_neighbors=5)", snippet: "from sklearn.neighbors import KNeighborsClassifier\nknn = KNeighborsClassifier(n_neighbors=5)\nknn.fit(X_train, y_train)\nprint(f'KNN Accuracy: {knn.score(X_test, y_test)*100:.1f}%')" },
+  { id: "ml_kmeans", name: "K-Means Clustering", language: "ml", level: "basic", description: "Groups similar data into K clusters.", example: "KMeans(n_clusters=3)", snippet: "from sklearn.cluster import KMeans\nkmeans = KMeans(n_clusters=3, random_state=42)\ndf['cluster_id'] = kmeans.fit_predict(df[['revenue', 'profit']])\nprint(df['cluster_id'].value_counts())" },
+  { id: "ml_apriori", name: "Apriori", language: "ml", level: "intermediate", description: "Finds frequent item patterns and association rules.", example: "apriori(basket, min_support=0.05)", snippet: "from mlxtend.frequent_patterns import apriori, association_rules\nitemsets = apriori(basket, min_support=0.05, use_colnames=True)\nrules = association_rules(itemsets, metric='lift', min_threshold=1.0)\nprint(rules.head())" },
+  { id: "ml_xgboost", name: "XGBOOST", language: "ml", level: "advanced", description: "A fast boosting method for strong predictive performance.", example: "xgb.XGBClassifier(n_estimators=100)", snippet: "import xgboost as xgb\nclf = xgb.XGBClassifier(n_estimators=100, learning_rate=0.08, random_state=42)\nclf.fit(X_train, y_train)\nprint(f'XGBoost Accuracy: {clf.score(X_test, y_test)*100:.1f}%')" },
+  { id: "ml_train_test_split", name: "train_test_split (80/20)", language: "ml", level: "basic", description: "Partition features and target into reproducible training and testing sets.", example: "train_test_split(X, y, test_size=0.2)", snippet: "from sklearn.model_selection import train_test_split\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)" },
+  { id: "ml_confusion_matrix", name: "Confusion Matrix & Heatmap", language: "ml", level: "intermediate", description: "Analyze True Positives, False Positives, True Negatives, and False Negatives.", example: "confusion_matrix(y_test, preds)", snippet: "from sklearn.metrics import confusion_matrix\ncm = confusion_matrix(y_test, preds)\nprint(cm)" },
+];
+
+export const ML_ALGORITHMS_EXPLAINED: MLAlgorithmInfo[] = [
+  {
+    id: "logistic_regression",
+    name: "Logistic Regression",
+    simpleExplanation: "Predicts the probability of a class label.",
+    task: "classification",
+    categoryLabel: "Classification",
+    badgeVariant: "python",
+    checkSuitability: (dataset, targetCol, selectedFeatures) => {
+      const col = dataset.columns.find((c) => c.name === targetCol);
+      if (!col) return { isSuitable: false, reason: "Target column not found in dataset." };
+      if (selectedFeatures.length === 0) return { isSuitable: false, reason: "Requires at least 1 input feature." };
+      if (col.type === "number" && col.distinctCount > 10) {
+        return {
+          isSuitable: false,
+          reason: `Target "${targetCol}" is continuous numeric (${col.distinctCount} unique values). Logistic regression requires discrete or binary class labels.`,
+        };
+      }
+      return { isSuitable: true, reason: `Suitable: Target "${targetCol}" has discrete class labels.` };
+    },
+    sampleSnippet: `from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+
+X = df[features]
+y = df[target]
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+model = LogisticRegression(max_iter=1000, C=1.0)
+model.fit(X_train, y_train)
+print(f"Logistic Regression Accuracy: {model.score(X_test, y_test)*100:.1f}%")`,
+  },
+  {
+    id: "linear_regression",
+    name: "Linear Regression",
+    simpleExplanation: "Predicts continuous values using a best-fit line.",
+    task: "regression",
+    categoryLabel: "Regression",
+    badgeVariant: "info",
+    checkSuitability: (dataset, targetCol, selectedFeatures) => {
+      const col = dataset.columns.find((c) => c.name === targetCol);
+      if (!col) return { isSuitable: false, reason: "Target column not found." };
+      if (selectedFeatures.length === 0) return { isSuitable: false, reason: "Requires at least 1 input feature." };
+      if (col.type !== "number") {
+        return {
+          isSuitable: false,
+          reason: `Target "${targetCol}" is categorical string. Linear regression requires a continuous numeric target.`,
+        };
+      }
+      return { isSuitable: true, reason: `Suitable: Target "${targetCol}" is continuous numeric.` };
+    },
+    sampleSnippet: `from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score, mean_squared_error
+
+X = df[features]
+y = df[target]
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+model = LinearRegression()
+model.fit(X_train, y_train)
+preds = model.predict(X_test)
+print(f"R² Score: {r2_score(y_test, preds):.3f}, RMSE: {mean_squared_error(y_test, preds, squared=False):.2f}")`,
+  },
+  {
+    id: "gradient_boosting",
+    name: "Gradient Boosting",
+    simpleExplanation: "Builds models step by step to reduce errors.",
+    task: "classification",
+    categoryLabel: "Ensemble Boosting",
+    badgeVariant: "ml",
+    checkSuitability: (dataset, targetCol, selectedFeatures) => {
+      if (selectedFeatures.length === 0) return { isSuitable: false, reason: "Requires at least 1 input feature." };
+      return { isSuitable: true, reason: "Suitable: Iteratively trains weak learners to minimize residual loss." };
+    },
+    sampleSnippet: `from sklearn.ensemble import GradientBoostingClassifier
+
+model = GradientBoostingClassifier(n_estimators=100, learning_rate=0.1, max_depth=3, random_state=42)
+model.fit(X_train, y_train)
+print(f"Gradient Boosting Accuracy: {model.score(X_test, y_test)*100:.1f}%")`,
+  },
+  {
+    id: "pca",
+    name: "Principal Component Analysis (PCA)",
+    simpleExplanation: "Reduces dimensions while keeping key patterns.",
+    task: "dimensionality_reduction",
+    categoryLabel: "Dimensionality Reduction",
+    badgeVariant: "statistics",
+    checkSuitability: (dataset, targetCol, selectedFeatures) => {
+      const numFeatures = selectedFeatures.filter((f) => {
+        const c = dataset.columns.find((col) => col.name === f);
+        return c?.type === "number";
+      });
+      if (numFeatures.length < 3) {
+        return {
+          isSuitable: false,
+          reason: `Only ${numFeatures.length} numeric features selected. PCA requires at least 3 numeric dimensions to meaningfully compress variance.`,
+        };
+      }
+      return { isSuitable: true, reason: `Suitable: ${numFeatures.length} numeric features ready for orthogonal eigenvector projection.` };
+    },
+    sampleSnippet: `from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
+
+X_scaled = StandardScaler().fit_transform(df[features])
+pca = PCA(n_components=2)
+components = pca.fit_transform(X_scaled)
+print(f"Explained Variance Ratio: {pca.explained_variance_ratio_}")`,
+  },
+  {
+    id: "decision_tree",
+    name: "Decision Tree",
+    simpleExplanation: "Splits data into branches to make decisions.",
+    task: "classification",
+    categoryLabel: "Tree Models",
+    badgeVariant: "python",
+    checkSuitability: (dataset, targetCol, selectedFeatures) => {
+      if (selectedFeatures.length === 0) return { isSuitable: false, reason: "Requires at least 1 input feature." };
+      return { isSuitable: true, reason: "Suitable: Non-parametric recursive splitting handles mixed feature types." };
+    },
+    sampleSnippet: `from sklearn.tree import DecisionTreeClassifier
+
+dt = DecisionTreeClassifier(max_depth=5, criterion="gini", random_state=42)
+dt.fit(X_train, y_train)
+print(f"Decision Tree Accuracy: {dt.score(X_test, y_test)*100:.1f}%")`,
+  },
+  {
+    id: "neural_networks",
+    name: "Neural Networks",
+    simpleExplanation: "Learns complex patterns through connected layers.",
+    task: "deep_learning",
+    categoryLabel: "Deep Learning (MLP)",
+    badgeVariant: "dax",
+    checkSuitability: (dataset, targetCol, selectedFeatures) => {
+      if (dataset.rowCount < 10) {
+        return {
+          isSuitable: false,
+          reason: `Dataset has only ${dataset.rowCount} rows. Neural networks require larger sample sizes (≥ 10 rows) to optimize multi-layer weights.`,
+        };
+      }
+      if (selectedFeatures.length < 2) {
+        return { isSuitable: false, reason: "Requires at least 2 input features for hidden layer connections." };
+      }
+      return { isSuitable: true, reason: `Suitable: ${dataset.rowCount} rows and ${selectedFeatures.length} features available for neural learning.` };
+    },
+    sampleSnippet: `from sklearn.neural_network import MLPClassifier
+
+mlp = MLPClassifier(hidden_layer_sizes=(64, 32), max_iter=500, activation="relu", random_state=42)
+mlp.fit(X_train, y_train)
+print(f"Neural Network Test Accuracy: {mlp.score(X_test, y_test)*100:.1f}%")`,
+  },
+  {
+    id: "random_forest",
+    name: "Random Forest",
+    simpleExplanation: "Combines many trees to improve prediction accuracy.",
+    task: "classification",
+    categoryLabel: "Ensemble Bagging",
+    badgeVariant: "success",
+    checkSuitability: (dataset, targetCol, selectedFeatures) => {
+      if (selectedFeatures.length === 0) return { isSuitable: false, reason: "Requires at least 1 input feature." };
+      return { isSuitable: true, reason: "Suitable: Ensemble bagging reduces model variance and prevents overfitting." };
+    },
+    sampleSnippet: `from sklearn.ensemble import RandomForestClassifier
+
+rf = RandomForestClassifier(n_estimators=100, max_depth=6, random_state=42)
+rf.fit(X_train, y_train)
+print(f"Random Forest Accuracy: {rf.score(X_test, y_test)*100:.1f}%")`,
+  },
+  {
+    id: "dbscan",
+    name: "DBSCAN",
+    simpleExplanation: "Finds dense clusters and detects outliers.",
+    task: "clustering",
+    categoryLabel: "Density Clustering",
+    badgeVariant: "pyspark",
+    checkSuitability: (dataset, targetCol, selectedFeatures) => {
+      const numFeatures = selectedFeatures.filter((f) => {
+        const c = dataset.columns.find((col) => col.name === f);
+        return c?.type === "number";
+      });
+      if (numFeatures.length < 2) {
+        return {
+          isSuitable: false,
+          reason: `Requires at least 2 continuous numeric features for spatial density calculation (currently ${numFeatures.length}).`,
+        };
+      }
+      if (dataset.rowCount < 10) {
+        return {
+          isSuitable: false,
+          reason: `Requires at least 10 rows for dense neighborhood estimation (currently ${dataset.rowCount}).`,
+        };
+      }
+      return { isSuitable: true, reason: `Suitable: ${numFeatures.length} continuous spatial features with ${dataset.rowCount} samples.` };
+    },
+    sampleSnippet: `from sklearn.cluster import DBSCAN
+from sklearn.preprocessing import StandardScaler
+
+X_scaled = StandardScaler().fit_transform(df[features])
+db = DBSCAN(eps=0.5, min_samples=3).fit(X_scaled)
+print(f"Clusters found: {len(set(db.labels_)) - (1 if -1 in db.labels_ else 0)}, Outliers: {list(db.labels_).count(-1)}")`,
+  },
+  {
+    id: "svm",
+    name: "Support Vector Machine (SVM)",
+    simpleExplanation: "Finds the best boundary between classes.",
+    task: "classification",
+    categoryLabel: "Kernel Classification",
+    badgeVariant: "dax",
+    checkSuitability: (dataset, targetCol, selectedFeatures) => {
+      const col = dataset.columns.find((c) => c.name === targetCol);
+      if (!col) return { isSuitable: false, reason: "Target column not found." };
+      if (col.type === "number" && col.distinctCount > 10) {
+        return {
+          isSuitable: false,
+          reason: `Target "${targetCol}" is continuous numeric. SVM classifier requires categorical/discrete class labels for hyperplane separation.`,
+        };
+      }
+      const numFeatures = selectedFeatures.filter((f) => dataset.columns.find((c) => c.name === f)?.type === "number");
+      if (numFeatures.length < 2) {
+        return { isSuitable: false, reason: "Requires at least 2 numeric features for hyperplane decision boundary." };
+      }
+      return { isSuitable: true, reason: `Suitable: Discrete target "${targetCol}" and ${numFeatures.length} features available.` };
+    },
+    sampleSnippet: `from sklearn.svm import SVC
+from sklearn.preprocessing import StandardScaler
+
+X_train_sc = StandardScaler().fit_transform(X_train)
+X_test_sc = StandardScaler().fit_transform(X_test)
+svm = SVC(kernel="rbf", C=1.0, probability=True)
+svm.fit(X_train_sc, y_train)
+print(f"SVM Test Accuracy: {svm.score(X_test_sc, y_test)*100:.1f}%")`,
+  },
+  {
+    id: "hierarchical_clustering",
+    name: "Hierarchical Clustering",
+    simpleExplanation: "Builds clusters in a tree-like hierarchy.",
+    task: "clustering",
+    categoryLabel: "Hierarchical Clustering",
+    badgeVariant: "pro",
+    checkSuitability: (dataset, targetCol, selectedFeatures) => {
+      const numFeatures = selectedFeatures.filter((f) => dataset.columns.find((c) => c.name === f)?.type === "number");
+      if (numFeatures.length < 2) {
+        return {
+          isSuitable: false,
+          reason: `Requires at least 2 numeric features for distance matrix (currently ${numFeatures.length}).`,
+        };
+      }
+      return { isSuitable: true, reason: `Suitable: ${numFeatures.length} numeric features ready for agglomerative linkage.` };
+    },
+    sampleSnippet: `from sklearn.cluster import AgglomerativeClustering
+
+hc = AgglomerativeClustering(n_clusters=3, linkage="ward")
+df["cluster_id"] = hc.fit_predict(df[features])
+print("Hierarchical cluster allocation counts:\\n", df["cluster_id"].value_counts())`,
+  },
+  {
+    id: "naive_bayes",
+    name: "Naive Bayes",
+    simpleExplanation: "Uses probabilities to classify data quickly.",
+    task: "classification",
+    categoryLabel: "Probabilistic Classification",
+    badgeVariant: "danger",
+    checkSuitability: (dataset, targetCol, selectedFeatures) => {
+      const col = dataset.columns.find((c) => c.name === targetCol);
+      if (!col) return { isSuitable: false, reason: "Target column not found." };
+      if (col.type === "number" && col.distinctCount > 10) {
+        return {
+          isSuitable: false,
+          reason: `Target "${targetCol}" is continuous numeric. Naive Bayes requires categorical class targets to compute prior and posterior probabilities.`,
+        };
+      }
+      return { isSuitable: true, reason: `Suitable: Target "${targetCol}" is categorical discrete.` };
+    },
+    sampleSnippet: `from sklearn.naive_bayes import GaussianNB
+
+nb = GaussianNB()
+nb.fit(X_train, y_train)
+print(f"Naive Bayes Accuracy: {nb.score(X_test, y_test)*100:.1f}%")`,
+  },
+  {
+    id: "arima",
+    name: "ARIMA",
+    simpleExplanation: "Forecasts time-series data using past trends.",
+    task: "time_series",
+    categoryLabel: "Time-Series Forecasting",
+    badgeVariant: "statistics",
+    checkSuitability: (dataset, targetCol, selectedFeatures) => {
+      const hasDate = dataset.columns.some(
+        (c) => c.type === "date" || /date|time|year|month|day/i.test(c.name)
+      );
+      if (!hasDate) {
+        return {
+          isSuitable: false,
+          reason: "Requires a Date/Time temporal column in dataset (e.g. 'order_date', 'timestamp') for sequential autoregression.",
+        };
+      }
+      const numCol = dataset.columns.find((c) => c.name === targetCol);
+      if (numCol && numCol.type !== "number") {
+        return {
+          isSuitable: false,
+          reason: `Target metric "${targetCol}" must be continuous numeric for time-series forecasting.`,
+        };
+      }
+      return { isSuitable: true, reason: "Suitable: Chronological date column detected for autoregressive moving average trend fitting." };
+    },
+    sampleSnippet: `from statsmodels.tsa.arima.model import ARIMA
+
+ts = df.set_index("order_date")[target].sort_index()
+model = ARIMA(ts, order=(1, 1, 1))
+fitted = model.fit()
+forecast = fitted.forecast(steps=7)
+print("7-Day Forecast Horizon:\\n", forecast)`,
+  },
+  {
+    id: "knn",
+    name: "K-Nearest Neighbors (KNN)",
+    simpleExplanation: "Classifies using the labels of nearby points.",
+    task: "classification",
+    categoryLabel: "Instance-Based Learning",
+    badgeVariant: "sql",
+    checkSuitability: (dataset, targetCol, selectedFeatures) => {
+      const col = dataset.columns.find((c) => c.name === targetCol);
+      if (!col) return { isSuitable: false, reason: "Target column not found." };
+      if (col.type === "number" && col.distinctCount > 10) {
+        return {
+          isSuitable: false,
+          reason: `Target "${targetCol}" is continuous numeric. KNN classifier requires discrete class labels to vote on neighbor majorities.`,
+        };
+      }
+      if (selectedFeatures.length === 0) return { isSuitable: false, reason: "Requires at least 1 feature." };
+      return { isSuitable: true, reason: `Suitable: Discrete target "${targetCol}" with ${selectedFeatures.length} distance features.` };
+    },
+    sampleSnippet: `from sklearn.neighbors import KNeighborsClassifier
+
+knn = KNeighborsClassifier(n_neighbors=5, metric="minkowski", p=2)
+knn.fit(X_train, y_train)
+print(f"KNN Test Accuracy: {knn.score(X_test, y_test)*100:.1f}%")`,
+  },
+  {
+    id: "kmeans",
+    name: "K-Means Clustering",
+    simpleExplanation: "Groups similar data into K clusters.",
+    task: "clustering",
+    categoryLabel: "Centroid Clustering",
+    badgeVariant: "pyspark",
+    checkSuitability: (dataset, targetCol, selectedFeatures) => {
+      const numFeatures = selectedFeatures.filter((f) => dataset.columns.find((c) => c.name === f)?.type === "number");
+      if (numFeatures.length < 2) {
+        return {
+          isSuitable: false,
+          reason: `Requires at least 2 continuous numeric features for Euclidean centroid convergence (currently ${numFeatures.length}).`,
+        };
+      }
+      return { isSuitable: true, reason: `Suitable: ${numFeatures.length} numeric dimensions available for K-Means clustering.` };
+    },
+    sampleSnippet: `from sklearn.cluster import KMeans
+
+kmeans = KMeans(n_clusters=3, n_init=10, random_state=42)
+df["cluster_label"] = kmeans.fit_predict(df[features])
+print("Cluster Centroids:\\n", kmeans.cluster_centers_)`,
+  },
+  {
+    id: "apriori",
+    name: "Apriori",
+    simpleExplanation: "Finds frequent item patterns and association rules.",
+    task: "association_rules",
+    categoryLabel: "Association Rule Mining",
+    badgeVariant: "hadoop",
+    checkSuitability: (dataset, targetCol, selectedFeatures) => {
+      const catCols = dataset.columns.filter((c) => c.type === "string");
+      if (catCols.length < 2) {
+        return {
+          isSuitable: false,
+          reason: `Requires at least 2 categorical basket/itemset columns (currently ${catCols.length}). Apriori discovers co-occurrence rules between items.`,
+        };
+      }
+      return { isSuitable: true, reason: `Suitable: ${catCols.length} categorical item columns available for basket rule discovery.` };
+    },
+    sampleSnippet: `import pandas as pd
+from mlxtend.frequent_patterns import apriori, association_rules
+
+basket = pd.crosstab(df["order_id"], df["category"]).astype(bool)
+frequent_itemsets = apriori(basket, min_support=0.05, use_colnames=True)
+rules = association_rules(frequent_itemsets, metric="lift", min_threshold=1.0)
+print(rules.head())`,
+  },
+  {
+    id: "xgboost",
+    name: "XGBOOST",
+    simpleExplanation: "A fast boosting method for strong predictive performance.",
+    task: "classification",
+    categoryLabel: "Extreme Gradient Boosting",
+    badgeVariant: "pro",
+    checkSuitability: (dataset, targetCol, selectedFeatures) => {
+      if (selectedFeatures.length < 2) {
+        return { isSuitable: false, reason: "Requires at least 2 features for regularized gradient boosting trees." };
+      }
+      return { isSuitable: true, reason: "Suitable: Fast tree boosting with L1/L2 regularization on tabular data." };
+    },
+    sampleSnippet: `import xgboost as xgb
+
+clf = xgb.XGBClassifier(n_estimators=100, learning_rate=0.08, max_depth=4, random_state=42)
+clf.fit(X_train, y_train)
+print(f"XGBoost Test Accuracy: {clf.score(X_test, y_test)*100:.1f}%")`,
+  },
 ];
 
 export const CONNECTORS: ConnectorItem[] = [

@@ -79,7 +79,33 @@ This section documents all technical challenges, architectural workarounds, and 
     - [`MachineLearningStudio.tsx`](src/components/playground/MachineLearningStudio.tsx): Classification, Regression, and Clustering model selection (Random Forest, Logistic Regression, Gradient Boosting, Ridge, K-Means), interactive hyperparameter sliders, 80/20 train/test split, comprehensive evaluation metrics (Accuracy, ROC-AUC, Precision, Recall, F1, MSE, R²), interactive 2x2 confusion matrix, feature importance ranking, interactive prediction sandbox, and Scikit-Learn code generator.
   - Seeded 40 new functions across all 4 domains (bringing total catalog to 130+ pre-configured functions in [`src/lib/sampleData.ts`](src/lib/sampleData.ts)).
   - Wired full tab navigation into [`src/components/playground/CenterWorkArea.tsx`](src/components/playground/CenterWorkArea.tsx) with horizontal scroll and URL parameter syncing (`?tab=...`).
-  - Added unit tests for statistical variance / t-statistic computation and ML confusion matrix evaluation metrics in [`src/lib/__tests__/unit.test.mjs`](src/lib/__tests__/unit.test.mjs).
+### 8. Machine Learning Algorithms Explained Simply & Dataset Understanding Suitability Engine
+- **Context & Request**: Implemented a comprehensive 16-algorithm Machine Learning studio matching the "Machine Learning Algorithms Explained Simply" framework. Engineered a dynamic dataset profiler that identifies target variable characteristics, feature dimensions, sample counts, and temporal attributes to automatically highlight suitable algorithms while greying out incompatible models from the filter.
+- **Architectural Implementation**:
+  - Cataloged all 16 foundational ML algorithms with exact simplified explanations:
+    1. **Logistic Regression**: "Predicts the probability of a class label."
+    2. **Linear Regression**: "Predicts continuous values using a best-fit line."
+    3. **Gradient Boosting**: "Builds models step by step to reduce errors."
+    4. **Principal Component Analysis (PCA)**: "Reduces dimensions while keeping key patterns."
+    5. **Decision Tree**: "Splits data into branches to make decisions."
+    6. **Neural Networks**: "Learns complex patterns through connected layers."
+    7. **Random Forest**: "Combines many trees to improve prediction accuracy."
+    8. **DBSCAN**: "Finds dense clusters and detects outliers."
+    9. **Support Vector Machine (SVM)**: "Finds the best boundary between classes."
+    10. **Hierarchical Clustering**: "Builds clusters in a tree-like hierarchy."
+    11. **Naive Bayes**: "Uses probabilities to classify data quickly."
+    12. **ARIMA**: "Forecasts time-series data using past trends."
+    13. **K-Nearest Neighbors (KNN)**: "Classifies using the labels of nearby points."
+    14. **K-Means Clustering**: "Groups similar data into K clusters."
+    15. **Apriori**: "Finds frequent item patterns and association rules."
+    16. **XGBOOST**: "A fast boosting method for strong predictive performance."
+  - **Dynamic Suitability Engine (`checkSuitability`)**:
+    - Evaluates continuous vs. categorical target nature (e.g. Linear Regression requires continuous numeric target; Logistic Regression requires discrete class labels).
+    - Checks dimensional bounds (e.g. PCA requires $\ge 3$ numeric features; DBSCAN requires continuous spatial coordinates).
+    - Checks temporal sequence prerequisites (e.g. ARIMA strictly requires Date/Time columns; greys out with explanatory reason when missing).
+    - Checks transactional co-occurrence requirements (e.g. Apriori requires multi-item categorical basket data).
+  - **Visual Greying & Diagnostics**: Incompatible cards appear muted (`opacity-45`, `grayscale`, with amber `✕ Incompatible` badge and diagnostic explanation). Interactive filter tabs allow toggling between `All (16)`, `Suitable Only`, and `Greyed Out`.
+  - Added unit test suite in [`src/lib/__tests__/unit.test.mjs`](src/lib/__tests__/unit.test.mjs) verifying suitability rules across continuous, categorical, and temporal datasets.
 
 ---
 

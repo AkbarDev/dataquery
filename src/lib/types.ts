@@ -9,9 +9,50 @@ export type Language =
 
 export type FunctionLevel = "basic" | "intermediate" | "advanced";
 
+export type MLTask =
+  | "classification"
+  | "regression"
+  | "clustering"
+  | "dimensionality_reduction"
+  | "deep_learning"
+  | "time_series"
+  | "association_rules";
+
+export type MLAlgorithmId =
+  | "logistic_regression"
+  | "linear_regression"
+  | "gradient_boosting"
+  | "pca"
+  | "decision_tree"
+  | "neural_networks"
+  | "random_forest"
+  | "dbscan"
+  | "svm"
+  | "hierarchical_clustering"
+  | "naive_bayes"
+  | "arima"
+  | "knn"
+  | "kmeans"
+  | "apriori"
+  | "xgboost";
+
+export interface MLAlgorithmInfo {
+  id: MLAlgorithmId;
+  name: string;
+  simpleExplanation: string; // The exact text from the infographic
+  task: MLTask;
+  categoryLabel: string;
+  badgeVariant: "python" | "sql" | "dax" | "statistics" | "pyspark" | "hadoop" | "ml" | "pro" | "info" | "warning" | "success" | "danger";
+  checkSuitability: (dataset: Dataset, targetCol: string, selectedFeatures: string[]) => {
+    isSuitable: boolean;
+    reason: string;
+  };
+  sampleSnippet: string;
+}
+
 export interface MLModelEvaluation {
   modelName: string;
-  task: "classification" | "regression" | "clustering";
+  task: MLTask;
   targetColumn: string;
   featureColumns: string[];
   metricPrimary: { name: string; value: number };
