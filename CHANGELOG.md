@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.4.2] - 2026-10-30
+
+### Added
+- **Home Page Data Domain Career Matrix & Tech Arsenal (`CareerMatrixSection.tsx`)**:
+  - Implemented the complete 5-role career taxonomy section on the homepage featuring creative persona identities:
+    - **Position 01 · Data Analytics**: *"The Data Detective" · Insights & Discovery Architect* (Skills: Data Cleaning, Excel/SQL Basics, Data Viz, Descriptive Stats, Reporting; Tools: Excel, SQL, Power BI, Tableau, Google Sheets).
+    - **Position 02 · Business Analytics**: *"The Strategic Navigator" · Boardroom Value Translator* (Skills: KPI Tracking, Business Reporting, Requirement Analysis, Forecasting, Decision Support; Tools: Excel, Power BI, Tableau, SQL, Looker Studio).
+    - **Position 03 · Data Engineering**: *"The Pipeline Blacksmith" · Big Data Infrastructure Titan* (Skills: ETL/ELT Pipelines, Data Warehousing, Database Indexing, Big Data Processing, Workflow Automation; Tools: Python, SQL, Apache Spark, Airflow, Snowflake, Hadoop).
+    - **Position 04 · Data Science**: *"The Algorithm Alchemist" · Predictive Machine Learning Pioneer* (Skills: Statistical Hypothesis Modeling, Machine Learning 16 Algos, EDA, Feature Engineering, Predictive Inference; Tools: Python, R, Jupyter, Scikit-learn, Pandas, XGBoost).
+    - **Position 05 · Business Intelligence**: *"The Visual Storyteller" · Executive Dashboard Artisan* (Skills: Interactive Dashboard UX, Data Storytelling, KPI Monitoring, Trend Variance Analysis, Performance Gauges; Tools: Power BI DAX, Tableau, Looker, Excel, SQL).
+  - Added interactive category selector tabs, skill sets, tool tag arsenals, and live deep-link buttons routing directly into DataQuery's corresponding playground studios (`?tab=sql`, `?tab=python`, `?tab=pyspark`, `?tab=ml`, `?tab=dax`).
+  - Added live Technology Filter pills (`SQL & Columnar`, `Python & Pandas`, `Power BI & DAX`, `Apache Spark & Big Data`, `Machine Learning`, `Excel & Sheets`).
+  - Added dual view mode switcher: `Role Deep-Dive` vs `All 5 Roles Matrix`.
+
+---
+
 ## [0.4.1] - 2026-10-30
 
 ### Added

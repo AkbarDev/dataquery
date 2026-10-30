@@ -7,6 +7,7 @@ import { PublicFooter } from "@/components/layout/PublicFooter";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
+import { CareerMatrixSection } from "@/components/home/CareerMatrixSection";
 import {
   Sparkles,
   ArrowRight,
@@ -356,7 +357,10 @@ ORDER BY total_rev DESC;`}
         </div>
       </section>
 
-      {/* 7. Use-Case Tabs (Ecommerce, Marketing, Students, Finance) */}
+      {/* 7. Data Domain Career Matrix & Tech Arsenal */}
+      <CareerMatrixSection />
+
+      {/* 8. Use-Case Tabs (Ecommerce, Marketing, Students, Finance) */}
       <section className="py-20 border-t border-slate-900 bg-slate-950/60">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center space-y-3 mb-10">

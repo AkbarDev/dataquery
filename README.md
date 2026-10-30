@@ -107,6 +107,19 @@ This section documents all technical challenges, architectural workarounds, and 
   - **Visual Greying & Diagnostics**: Incompatible cards appear muted (`opacity-45`, `grayscale`, with amber `✕ Incompatible` badge and diagnostic explanation). Interactive filter tabs allow toggling between `All (16)`, `Suitable Only`, and `Greyed Out`.
   - Added unit test suite in [`src/lib/__tests__/unit.test.mjs`](src/lib/__tests__/unit.test.mjs) verifying suitability rules across continuous, categorical, and temporal datasets.
 
+### 9. Interactive Data Domain Career Matrix & Tech Arsenal
+- **Context & Request**: Added an interactive career taxonomy section to the home page ([`CareerMatrixSection.tsx`](src/components/home/CareerMatrixSection.tsx)) spotlighting the 5 core data professions: Data Analytics, Business Analytics, Data Engineering, Data Science, and Business Intelligence. Featured creative persona callouts, distinct skill sets, tool arsenals, and live interactive technology filters.
+- **Creative Persona Identities**:
+  1. **Position 01 · Data Analytics**: *"The Data Detective" · Insights & Discovery Architect* (Skills: Data Cleaning, Excel/SQL Basics, Data Viz, Descriptive Stats, Reporting; Tools: Excel, SQL, Power BI, Tableau, Google Sheets).
+  2. **Position 02 · Business Analytics**: *"The Strategic Navigator" · Boardroom Value Translator* (Skills: KPI Tracking, Business Reporting, Requirement Analysis, Forecasting, Decision Support; Tools: Excel, Power BI, Tableau, SQL, Looker Studio).
+  3. **Position 03 · Data Engineering**: *"The Pipeline Blacksmith" · Big Data Infrastructure Titan* (Skills: ETL/ELT Pipelines, Data Warehousing, Database Indexing, Big Data Processing, Workflow Automation; Tools: Python, SQL, Apache Spark, Airflow, Snowflake, Hadoop).
+  4. **Position 04 · Data Science**: *"The Algorithm Alchemist" · Predictive Machine Learning Pioneer* (Skills: Statistical Hypothesis Modeling, Machine Learning 16 Algos, EDA, Feature Engineering, Predictive Inference; Tools: Python, R, Jupyter, Scikit-learn, Pandas, XGBoost).
+  5. **Position 05 · Business Intelligence**: *"The Visual Storyteller" · Executive Dashboard Artisan* (Skills: Interactive Dashboard UX, Data Storytelling, KPI Monitoring, Trend Variance Analysis, Performance Gauges; Tools: Power BI DAX, Tableau, Looker, Excel, SQL).
+- **Interactive Features**:
+  - Dual view modes: `Role Deep-Dive` (interactive tab selector with skill pillars and tool arsenals) and `All 5 Roles Matrix` (direct infographic comparison grid).
+  - Tech Stack filter pills (`SQL & Columnar`, `Python & Pandas`, `Power BI & DAX`, `Apache Spark`, `Machine Learning`, `Excel & Sheets`).
+  - One-click deep-link action buttons routing directly to the corresponding playground studio (`?tab=sql`, `?tab=python`, `?tab=pyspark`, `?tab=ml`, `?tab=dax`).
+
 ---
 
 ## 🚀 Quick Start & Local Development
