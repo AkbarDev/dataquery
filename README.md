@@ -118,7 +118,23 @@ This section documents all technical challenges, architectural workarounds, and 
 - **Interactive Features**:
   - Dual view modes: `Role Deep-Dive` (interactive tab selector with skill pillars and tool arsenals) and `All 5 Roles Matrix` (direct infographic comparison grid).
   - Tech Stack filter pills (`SQL & Columnar`, `Python & Pandas`, `Power BI & DAX`, `Apache Spark`, `Machine Learning`, `Excel & Sheets`).
-  - One-click deep-link action buttons routing directly to the corresponding playground studio (`?tab=sql`, `?tab=python`, `?tab=pyspark`, `?tab=ml`, `?tab=dax`).
+### 10. Essential Tools Ecosystem & Interactive Simulation Command Deck
+- **Context & Request**: Added all 55 tools from the industry-standard Venn diagram ("Essential Tools Used By Data Scientists, Analysts & Engineers") across Data Science, Data Analysis, and Data Engineering to the homepage categories and playground interface. Clicking any tool routes directly into the DataQuery Playground with a curated list of executable functions and runtime commands.
+- **55-Tool Ecosystem Architecture ([`src/lib/essentialTools.ts`](src/lib/essentialTools.ts))**:
+  - **Data Scientist**: LightGBM, Hugging Face, Statsmodels, XGBoost, Dask, NLTK, OpenCV, Keras, PyTorch, TensorFlow, Scikit-Learn, MATLAB.
+  - **Data Analyst**: Google Analytics, Tableau, Power BI, Alteryx, Microsoft Power Query, Google Data Studio, SAS, Qlik Sense, ThoughtSpot, Looker, SPSS, Mixpanel.
+  - **Data Engineer**: Airflow, Kafka, AWS Redshift, Trino, Snowflake, Presto, Apache Cassandra, Informatica, Flink, Apache NiFi, Talend, Azure Data Factory.
+  - **Disciplinary Intersections**: Excel, Jupyter, Pandas, NumPy, R (DS ∩ DA); Docker, Hadoop, Spark, Databricks, Kubernetes, MLflow (DS ∩ DE); dbt, Hive, SQL Server, BigQuery, ETL (DA ∩ DE); Git, SQL, Python (Center: All 3 Disciplines).
+- **Playground Tool Command Deck ([`ToolCommandDeck.tsx`](src/components/playground/ToolCommandDeck.tsx))**:
+  - Mounted directly above the Playground code editor and visual studios.
+  - Detects `?tool=[id]` query parameters, automatically setting the active engine tab and loading tool metadata.
+  - Displays executable CLI commands and API functions with real-world syntax definitions.
+  - Single-click injection into the editor buffer with instant execution via **"Run [Tool] Simulation"**.
+  - Integrated 55-tool quick switcher dropdown allowing rapid exploration of any tool without leaving the playground.
+- **Homepage Ecosystem Explorer**:
+  - Added a 3rd View Mode to [`CareerMatrixSection.tsx`](src/components/home/CareerMatrixSection.tsx): `Essential Tools Ecosystem (55)`.
+  - Filter pills (`All Tools (55)`, `Data Scientist`, `Data Analyst`, `Data Engineer`, `Intersections`) and instant keyword search.
+  - Every tool chip across all role cards is clickable and deep-links directly to `/app/playground?tool=${id}&tab=${tab}`.
 
 ---
 

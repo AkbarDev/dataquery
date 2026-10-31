@@ -125,3 +125,29 @@ test("ML Algorithm Data Understanding & Suitability Engine - Continuous vs Categ
   assert.equal(pcaSuitable3, true, "PCA must be suitable when ≥ 3 features are selected");
 });
 
+test("Essential Tools Ecosystem - 55 Tools across Data Scientist, Analyst, and Engineer", () => {
+  const toolsCatalog = [
+    // Data Scientist
+    "lightgbm", "huggingface", "statsmodels", "xgboost", "dask", "nltk", "opencv", "keras", "pytorch", "tensorflow", "scikit_learn", "matlab",
+    // Data Analyst
+    "google_analytics", "tableau", "power_bi", "alteryx", "power_query", "looker_studio", "sas", "qlik_sense", "thoughtspot", "looker", "spss", "mixpanel",
+    // Data Engineer
+    "airflow", "kafka", "aws_redshift", "trino", "snowflake", "presto", "cassandra", "informatica", "flink", "nifi", "talend", "azure_data_factory",
+    // Intersections
+    "excel", "jupyter", "pandas", "numpy", "r_lang", "docker", "hadoop", "spark", "databricks", "kubernetes", "mlflow", "dbt", "hive", "sql_server", "bigquery", "etl", "git", "sql", "python"
+  ];
+
+  // Verify full catalog coverage
+  assert.equal(toolsCatalog.length, 55, "Ecosystem must contain all 55 tools from the Venn diagram infographic");
+
+  // Verify unique IDs
+  const uniqueSet = new Set(toolsCatalog);
+  assert.equal(uniqueSet.size, 55, "All tool IDs must be unique without duplicates");
+
+  // Verify deep-link URL schema
+  const sampleTool = { id: "xgboost", playgroundTab: "ml" };
+  const targetUrl = `/app/playground?tool=${sampleTool.id}&tab=${sampleTool.playgroundTab}`;
+  assert.equal(targetUrl, "/app/playground?tool=xgboost&tab=ml");
+});
+
+

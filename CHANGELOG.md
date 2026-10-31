@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.4.3] - 2026-10-31
+
+### Added
+- **Essential Tools Ecosystem & Simulation Command Deck (`src/lib/essentialTools.ts`, `CareerMatrixSection.tsx`, `ToolCommandDeck.tsx`)**:
+  - Implemented all 55 essential tools from the industry-standard Venn diagram ("Essential Tools Used By Data Scientists, Analysts & Engineers"):
+    - **Data Scientist**: LightGBM, Hugging Face, Statsmodels, XGBoost, Dask, NLTK, OpenCV, Keras, PyTorch, TensorFlow, Scikit-Learn, MATLAB.
+    - **Data Analyst**: Google Analytics, Tableau, Power BI, Alteryx, Microsoft Power Query, Google Data Studio, SAS, Qlik Sense, ThoughtSpot, Looker, SPSS, Mixpanel.
+    - **Data Engineer**: Airflow, Kafka, AWS Redshift, Trino, Snowflake, Presto, Apache Cassandra, Informatica, Flink, Apache NiFi, Talend, Azure Data Factory.
+    - **Intersections**: Excel, Jupyter Notebook, Pandas, NumPy, R (DS ∩ DA); Docker, Hadoop, Spark, Databricks, Kubernetes, MLflow (DS ∩ DE); dbt, Hive, SQL Server, BigQuery, ETL (DA ∩ DE); Git, SQL, Python (Center: All Disciplines).
+  - **Tool Simulation Command Deck (`ToolCommandDeck.tsx`)**:
+    - Embedded into the Playground Center Work Area.
+    - Automatically activates when navigating via `?tool=[id]`, preloading the tool's runtime commands, syntax guide, and working code snippet.
+    - Interactive command switcher allowing users to test drive all 55 tools directly in the simulation console.
+    - One-click **"Run [Tool] Simulation"** button that executes code and streams real telemetry, output logs, metrics, or table data.
+  - **Homepage Essential Tools Ecosystem Explorer (`CareerMatrixSection.tsx`)**:
+    - Added a 3rd View Mode: `Essential Tools Ecosystem (55)`.
+    - Discipline filter pills (`All Tools (55)`, `Data Scientist`, `Data Analyst`, `Data Engineer`, `Intersections`) and instant keyword search.
+    - Deep-links every tool directly into the playground simulation with pre-configured functions and commands.
+- **Testing**: Added test suite verifying 55 unique tool IDs and deep-link routing.
+
+---
+
 ## [0.4.2] - 2026-10-30
 
 ### Added

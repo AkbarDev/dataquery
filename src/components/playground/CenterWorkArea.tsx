@@ -16,6 +16,7 @@ import { StatisticsStudio } from "./StatisticsStudio";
 import { PySparkStudio } from "./PySparkStudio";
 import { HadoopStudio } from "./HadoopStudio";
 import { MachineLearningStudio } from "./MachineLearningStudio";
+import { ToolCommandDeck } from "./ToolCommandDeck";
 import {
   Play,
   Sparkles,
@@ -352,6 +353,9 @@ export function CenterWorkArea() {
           </Button>
         </div>
       </div>
+
+      {/* 55 Essential Tools Simulation & Command Deck */}
+      <ToolCommandDeck onRunSimulation={handleRun} isExecuting={isExecuting} />
 
       {/* Main Work Area: Manual Code Editor OR Automate Preset Pipeline */}
       <div className="flex-1 overflow-hidden relative flex flex-col">

@@ -4,6 +4,8 @@ import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { ESSENTIAL_TOOLS, getToolById, getToolsByDiscipline } from "@/lib/essentialTools";
+import { EssentialTool } from "@/lib/types";
 import {
   Sparkles,
   ArrowRight,
@@ -22,6 +24,11 @@ import {
   Workflow,
   TrendingUp,
   FileSpreadsheet,
+  Zap,
+  Code2,
+  ChevronRight,
+  Flame,
+  Play,
 } from "lucide-react";
 
 export interface CareerRole {
@@ -36,9 +43,9 @@ export interface CareerRole {
   accentBg: string;
   accentText: string;
   skills: string[];
-  tools: { name: string; tag: string }[];
+  tools: { name: string; tag: string; toolId: string }[];
   techCategories: string[];
-  playgroundTab: "sql" | "python" | "pyspark" | "ml" | "dax";
+  playgroundTab: "sql" | "python" | "pyspark" | "ml" | "dax" | "statistics" | "hadoop";
   playgroundCtaText: string;
   engineFeature: string;
 }
@@ -64,11 +71,16 @@ export const DATA_CAREER_ROLES: CareerRole[] = [
       "Reporting & Actionable Insights",
     ],
     tools: [
-      { name: "Excel", tag: "Spreadsheets" },
-      { name: "SQL (DuckDB)", tag: "Columnar Queries" },
-      { name: "Power BI", tag: "Visual Metrics" },
-      { name: "Tableau", tag: "Dashboards" },
-      { name: "Google Sheets", tag: "Cloud Tables" },
+      { name: "Excel", tag: "Spreadsheets", toolId: "excel" },
+      { name: "SQL (DuckDB)", tag: "Columnar Queries", toolId: "sql" },
+      { name: "Power BI", tag: "Visual Metrics", toolId: "power_bi" },
+      { name: "Tableau", tag: "LOD Dashboards", toolId: "tableau" },
+      { name: "Google Analytics", tag: "Web Funnels", toolId: "google_analytics" },
+      { name: "Power Query", tag: "M Transforms", toolId: "power_query" },
+      { name: "Alteryx", tag: "Data Blending", toolId: "alteryx" },
+      { name: "Looker Studio", tag: "Cloud Reports", toolId: "looker_studio" },
+      { name: "Mixpanel", tag: "Retention Curves", toolId: "mixpanel" },
+      { name: "ThoughtSpot", tag: "Search Analytics", toolId: "thoughtspot" },
     ],
     techCategories: ["sql", "excel", "spreadsheets", "bi"],
     playgroundTab: "sql",
@@ -95,11 +107,14 @@ export const DATA_CAREER_ROLES: CareerRole[] = [
       "Executive Decision Support",
     ],
     tools: [
-      { name: "Excel", tag: "Financial Modeling" },
-      { name: "Power BI", tag: "Executive Dashboards" },
-      { name: "Tableau", tag: "Strategic Views" },
-      { name: "SQL", tag: "Aggregations" },
-      { name: "Looker Studio", tag: "Web Analytics" },
+      { name: "Excel", tag: "Financial Modeling", toolId: "excel" },
+      { name: "Power BI", tag: "Executive Dashboards", toolId: "power_bi" },
+      { name: "Tableau", tag: "Strategic Views", toolId: "tableau" },
+      { name: "SQL", tag: "Aggregations", toolId: "sql" },
+      { name: "Looker", tag: "Semantic LookML", toolId: "looker" },
+      { name: "Qlik Sense", tag: "Associative Engine", toolId: "qlik_sense" },
+      { name: "ThoughtSpot", tag: "Search-Driven NLQ", toolId: "thoughtspot" },
+      { name: "Python", tag: "Automated Scripts", toolId: "python" },
     ],
     techCategories: ["excel", "bi", "sql", "forecasting"],
     playgroundTab: "python",
@@ -126,12 +141,19 @@ export const DATA_CAREER_ROLES: CareerRole[] = [
       "Workflow Automation & DAG Orchestration",
     ],
     tools: [
-      { name: "Python", tag: "Pipeline Logic" },
-      { name: "SQL", tag: "DDL & DML Warehousing" },
-      { name: "Apache Spark", tag: "Distributed Engine" },
-      { name: "Apache Airflow", tag: "DAG Scheduling" },
-      { name: "Snowflake", tag: "Cloud Warehouse" },
-      { name: "Hadoop (HDFS/YARN)", tag: "Cluster Storage" },
+      { name: "Apache Airflow", tag: "DAG Orchestration", toolId: "airflow" },
+      { name: "Apache Spark", tag: "Distributed Engine", toolId: "spark" },
+      { name: "Apache Kafka", tag: "Event Streaming", toolId: "kafka" },
+      { name: "Snowflake", tag: "Cloud Warehouse", toolId: "snowflake" },
+      { name: "dbt", tag: "Warehouse Modeling", toolId: "dbt" },
+      { name: "Hadoop (HDFS/YARN)", tag: "Cluster Storage", toolId: "hadoop" },
+      { name: "Hive", tag: "Metastore DDL", toolId: "hive" },
+      { name: "AWS Redshift", tag: "MPP Columnar", toolId: "aws_redshift" },
+      { name: "Trino / Presto", tag: "Federated SQL", toolId: "trino" },
+      { name: "Apache Cassandra", tag: "NoSQL Keyspaces", toolId: "cassandra" },
+      { name: "Docker & K8s", tag: "Containers", toolId: "docker" },
+      { name: "Apache Flink", tag: "Stateful Streams", toolId: "flink" },
+      { name: "Azure Data Factory", tag: "Cloud ETL", toolId: "azure_data_factory" },
     ],
     techCategories: ["python", "sql", "spark", "bigdata", "cloud"],
     playgroundTab: "pyspark",
@@ -158,12 +180,20 @@ export const DATA_CAREER_ROLES: CareerRole[] = [
       "Predictive Inference & Real-Time Scoring",
     ],
     tools: [
-      { name: "Python", tag: "Core Language" },
-      { name: "R", tag: "Statistical Computing" },
-      { name: "Jupyter", tag: "Interactive Notebooks" },
-      { name: "Scikit-learn", tag: "ML Classifiers" },
-      { name: "Pandas & NumPy", tag: "Array Crunching" },
-      { name: "XGBoost", tag: "Gradient Boosting" },
+      { name: "Python", tag: "Core Language", toolId: "python" },
+      { name: "Scikit-Learn", tag: "ML Classifiers", toolId: "scikit_learn" },
+      { name: "XGBoost", tag: "Gradient Boosting", toolId: "xgboost" },
+      { name: "LightGBM", tag: "Fast Boosting", toolId: "lightgbm" },
+      { name: "PyTorch", tag: "Dynamic Tensors", toolId: "pytorch" },
+      { name: "TensorFlow & Keras", tag: "Deep Learning", toolId: "tensorflow" },
+      { name: "Hugging Face", tag: "Transformers", toolId: "huggingface" },
+      { name: "Statsmodels", tag: "OLS & ANOVA", toolId: "statsmodels" },
+      { name: "Pandas & NumPy", tag: "Array Crunching", toolId: "pandas" },
+      { name: "Jupyter", tag: "Notebook EDA", toolId: "jupyter" },
+      { name: "R", tag: "Statistical Models", toolId: "r_lang" },
+      { name: "MLflow", tag: "Experiment Tracking", toolId: "mlflow" },
+      { name: "Dask", tag: "Parallel Arrays", toolId: "dask" },
+      { name: "NLTK & OpenCV", tag: "Vision & Text", toolId: "nltk" },
     ],
     techCategories: ["python", "ml", "statistics", "datascience"],
     playgroundTab: "ml",
@@ -190,11 +220,15 @@ export const DATA_CAREER_ROLES: CareerRole[] = [
       "Performance Tracking & Target Gauges",
     ],
     tools: [
-      { name: "Power BI (DAX)", tag: "Semantic Models" },
-      { name: "Tableau", tag: "Visual Analytics" },
-      { name: "Looker", tag: "LookML Modeling" },
-      { name: "Excel", tag: "Pivot Reporting" },
-      { name: "SQL", tag: "Data Mart Aggregation" },
+      { name: "Power BI (DAX)", tag: "Semantic Models", toolId: "power_bi" },
+      { name: "Tableau", tag: "Visual LODs", toolId: "tableau" },
+      { name: "Looker", tag: "LookML Modeling", toolId: "looker" },
+      { name: "Qlik Sense", tag: "Associative Views", toolId: "qlik_sense" },
+      { name: "Power Query", tag: "M Cleansing", toolId: "power_query" },
+      { name: "Looker Studio", tag: "Cloud Dashboards", toolId: "looker_studio" },
+      { name: "ThoughtSpot", tag: "Self-Serve BI", toolId: "thoughtspot" },
+      { name: "SQL Server", tag: "Mart Aggregations", toolId: "sql_server" },
+      { name: "Excel", tag: "Pivot Reporting", toolId: "excel" },
     ],
     techCategories: ["bi", "dax", "powerbi", "excel", "sql"],
     playgroundTab: "dax",
@@ -206,7 +240,9 @@ export const DATA_CAREER_ROLES: CareerRole[] = [
 export function CareerMatrixSection() {
   const [activeRoleId, setActiveRoleId] = useState<string>("data_analytics");
   const [selectedTechFilter, setSelectedTechFilter] = useState<string>("all");
-  const [viewMode, setViewMode] = useState<"detail" | "grid">("detail");
+  const [viewMode, setViewMode] = useState<"detail" | "grid" | "tools">("detail");
+  const [toolEcosystemFilter, setToolEcosystemFilter] = useState<string>("all");
+  const [toolSearchQuery, setToolSearchQuery] = useState<string>("");
 
   const techFilters = [
     { id: "all", label: "All Tech Stacks" },
@@ -228,6 +264,35 @@ export function CareerMatrixSection() {
     return DATA_CAREER_ROLES.filter((r) => r.techCategories.includes(selectedTechFilter));
   }, [selectedTechFilter]);
 
+  // Filter tools for Essential Tools Ecosystem view
+  const filteredEcosystemTools = useMemo(() => {
+    let list = ESSENTIAL_TOOLS;
+    if (toolEcosystemFilter === "scientist") {
+      list = getToolsByDiscipline("scientist");
+    } else if (toolEcosystemFilter === "analyst") {
+      list = getToolsByDiscipline("analyst");
+    } else if (toolEcosystemFilter === "engineer") {
+      list = getToolsByDiscipline("engineer");
+    } else if (toolEcosystemFilter === "intersections") {
+      list = ESSENTIAL_TOOLS.filter((t) =>
+        ["all_three", "ds_da", "ds_de", "da_de"].includes(t.domain)
+      );
+    }
+
+    if (toolSearchQuery.trim()) {
+      const q = toolSearchQuery.toLowerCase();
+      list = list.filter(
+        (t) =>
+          t.name.toLowerCase().includes(q) ||
+          t.category.toLowerCase().includes(q) ||
+          t.description.toLowerCase().includes(q) ||
+          t.primaryTags.some((tag) => tag.toLowerCase().includes(q)) ||
+          t.functions.some((f) => f.name.toLowerCase().includes(q) || f.syntax.toLowerCase().includes(q))
+      );
+    }
+    return list;
+  }, [toolEcosystemFilter, toolSearchQuery]);
+
   return (
     <section className="py-20 px-4 sm:px-6 max-w-7xl mx-auto w-full relative">
       {/* Background Subtle Gradient */}
@@ -238,7 +303,7 @@ export function CareerMatrixSection() {
         <div className="text-center space-y-3 max-w-3xl mx-auto">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-sky-500/10 via-purple-500/10 to-rose-500/10 border border-slate-700 text-xs text-slate-300 font-medium">
             <Sparkles className="w-3.5 h-3.5 text-sky-400" />
-            <span>Data Domain Skill Set &amp; Career Matrix</span>
+            <span>Essential Tools &amp; Career Matrix</span>
           </div>
 
           <h2 className="text-3xl sm:text-5xl font-extrabold text-slate-100 tracking-tight leading-tight">
@@ -246,16 +311,16 @@ export function CareerMatrixSection() {
           </h2>
 
           <p className="text-xs sm:text-sm text-slate-400 leading-relaxed max-w-2xl mx-auto">
-            From <strong>The Data Detective</strong> to <strong>The Algorithm Alchemist</strong> — explore the 5 core data career paths, their essential skills and technology stacks, and test drive each workflow live in DataQuery.
+            From <strong>The Data Detective</strong> to <strong>The Algorithm Alchemist</strong> — explore the core data career paths, their essential tools from the industry standard ecosystem, and click any tool to test drive live simulations &amp; commands in the DataQuery playground.
           </p>
         </div>
 
-        {/* Filter Controls Bar: Tech Filter + View Mode */}
+        {/* Filter Controls Bar: Tech Filter + View Mode Switcher */}
         <div className="p-3.5 rounded-2xl bg-slate-900/70 border border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4">
           {/* Tech Filter Buttons */}
           <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar w-full md:w-auto text-xs">
             <span className="text-slate-400 font-mono text-[11px] shrink-0 mr-1 flex items-center gap-1">
-              <Filter className="w-3.5 h-3.5 text-sky-400" /> Filter Tech:
+              <Filter className="w-3.5 h-3.5 text-sky-400" /> Filter:
             </span>
             {techFilters.map((tf) => {
               const isSelected = selectedTechFilter === tf.id;
@@ -275,11 +340,11 @@ export function CareerMatrixSection() {
             })}
           </div>
 
-          {/* View Mode Toggle: Role Deep-Dive vs 5-Role Matrix */}
-          <div className="flex items-center p-0.5 bg-slate-950 rounded-lg border border-slate-800 text-xs shrink-0">
+          {/* 3 View Modes: Role Deep-Dive | All 5 Roles Matrix | Essential Tools Ecosystem */}
+          <div className="flex items-center p-0.5 bg-slate-950 rounded-lg border border-slate-800 text-xs shrink-0 overflow-x-auto">
             <button
               onClick={() => setViewMode("detail")}
-              className={`px-3 py-1.5 rounded-md font-medium transition-colors cursor-pointer ${
+              className={`px-3 py-1.5 rounded-md font-medium transition-colors cursor-pointer shrink-0 ${
                 viewMode === "detail"
                   ? "bg-slate-800 text-slate-100 font-semibold shadow-sm"
                   : "text-slate-400 hover:text-slate-200"
@@ -289,7 +354,7 @@ export function CareerMatrixSection() {
             </button>
             <button
               onClick={() => setViewMode("grid")}
-              className={`px-3 py-1.5 rounded-md font-medium transition-colors cursor-pointer ${
+              className={`px-3 py-1.5 rounded-md font-medium transition-colors cursor-pointer shrink-0 ${
                 viewMode === "grid"
                   ? "bg-slate-800 text-slate-100 font-semibold shadow-sm"
                   : "text-slate-400 hover:text-slate-200"
@@ -297,11 +362,24 @@ export function CareerMatrixSection() {
             >
               All 5 Roles Matrix
             </button>
+            <button
+              onClick={() => setViewMode("tools")}
+              className={`px-3 py-1.5 rounded-md font-medium transition-colors cursor-pointer shrink-0 flex items-center gap-1.5 ${
+                viewMode === "tools"
+                  ? "bg-sky-500/20 text-sky-300 font-semibold border border-sky-500/40 shadow-sm"
+                  : "text-slate-400 hover:text-slate-200"
+              }`}
+            >
+              <Zap className="w-3 h-3 text-sky-400" />
+              <span>Essential Tools Ecosystem (55)</span>
+            </button>
           </div>
         </div>
 
-        {/* VIEW 1: ROLE DEEP-DIVE WITH CATEGORY TABS */}
-        {viewMode === "detail" ? (
+        {/* ==================================================== */}
+        {/* VIEW 1: ROLE DEEP-DIVE WITH CATEGORY TABS           */}
+        {/* ==================================================== */}
+        {viewMode === "detail" && (
           <div className="space-y-6">
             {/* Horizontal Role Selector Tabs */}
             <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
@@ -396,25 +474,34 @@ export function CareerMatrixSection() {
                   </ul>
                 </div>
 
-                {/* Pillar 2: Tools & Tech Arsenal */}
+                {/* Pillar 2: Tools & Tech Arsenal (Each Clickable to Playground Simulation!) */}
                 <div className="p-4 rounded-xl bg-slate-950/70 border border-slate-800/80 space-y-3">
-                  <div className="flex items-center gap-2">
-                    <Wrench className="w-4 h-4 text-purple-400" />
-                    <h4 className="text-xs font-bold text-slate-200 uppercase tracking-wider font-mono">
-                      Tools &amp; Tech Arsenal
-                    </h4>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Wrench className="w-4 h-4 text-purple-400" />
+                      <h4 className="text-xs font-bold text-slate-200 uppercase tracking-wider font-mono">
+                        Tools &amp; Tech Arsenal
+                      </h4>
+                    </div>
+                    <span className="text-[10px] text-sky-400 font-mono">Click to simulate</span>
                   </div>
+
                   <div className="flex flex-wrap gap-2">
                     {activeRole.tools.map((tool) => (
-                      <div
+                      <Link
                         key={tool.name}
-                        className="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs flex items-center justify-between gap-2"
+                        href={`/app/playground?tool=${tool.toolId}&tab=${activeRole.playgroundTab}`}
+                        className="px-2.5 py-1.5 rounded-lg bg-slate-900 hover:bg-sky-500/10 border border-slate-800 hover:border-sky-500/50 text-xs flex items-center justify-between gap-2 transition-all group cursor-pointer"
+                        title={`Click to open ${tool.name} in Playground Simulation`}
                       >
-                        <span className="font-bold text-slate-200">{tool.name}</span>
-                        <span className="text-[10px] text-slate-400 font-mono">
+                        <span className="font-bold text-slate-200 group-hover:text-sky-300 transition-colors">
+                          {tool.name}
+                        </span>
+                        <span className="text-[10px] text-slate-500 group-hover:text-sky-400 font-mono">
                           {tool.tag}
                         </span>
-                      </div>
+                        <ChevronRight className="w-3 h-3 text-slate-600 group-hover:text-sky-400 transition-transform group-hover:translate-x-0.5" />
+                      </Link>
                     ))}
                   </div>
                 </div>
@@ -443,8 +530,12 @@ export function CareerMatrixSection() {
               </div>
             </div>
           </div>
-        ) : (
-          /* VIEW 2: ALL 5 ROLES MATRIX (DIRECT INFOGRAPHIC COMPARISON) */
+        )}
+
+        {/* ==================================================== */}
+        {/* VIEW 2: ALL 5 ROLES MATRIX                          */}
+        {/* ==================================================== */}
+        {viewMode === "grid" && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {filteredRoles.map((role) => (
               <div
@@ -491,19 +582,23 @@ export function CareerMatrixSection() {
                     </ul>
                   </div>
 
-                  {/* Tools Badges */}
+                  {/* Tools Badges (Clickable to Playground) */}
                   <div className="space-y-1.5 pt-2 border-t border-slate-800">
-                    <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-semibold block">
-                      Tech Arsenal:
-                    </span>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-semibold block">
+                        Tech Arsenal:
+                      </span>
+                      <span className="text-[9px] text-sky-400 font-mono">Click to simulate</span>
+                    </div>
                     <div className="flex flex-wrap gap-1.5">
                       {role.tools.map((t) => (
-                        <span
+                        <Link
                           key={t.name}
-                          className="px-2 py-0.5 rounded bg-slate-950 text-slate-300 border border-slate-800 text-[11px] font-mono"
+                          href={`/app/playground?tool=${t.toolId}&tab=${role.playgroundTab}`}
+                          className="px-2 py-0.5 rounded bg-slate-950 hover:bg-sky-500/10 text-slate-300 hover:text-sky-300 border border-slate-800 hover:border-sky-500/40 text-[11px] font-mono transition-colors"
                         >
                           {t.name}
-                        </span>
+                        </Link>
                       ))}
                     </div>
                   </div>
@@ -520,6 +615,135 @@ export function CareerMatrixSection() {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* ==================================================== */}
+        {/* VIEW 3: ESSENTIAL TOOLS ECOSYSTEM (FROM SCREENSHOT) */}
+        {/* ==================================================== */}
+        {viewMode === "tools" && (
+          <div className="space-y-6">
+            {/* Filter and Search Bar for the 55 Tools */}
+            <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800 flex flex-col md:flex-row items-center justify-between gap-3">
+              {/* Discipline Filter Pills */}
+              <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar w-full md:w-auto text-xs">
+                {[
+                  { id: "all", label: `All Tools (${ESSENTIAL_TOOLS.length})` },
+                  { id: "scientist", label: "Data Scientist (23)" },
+                  { id: "analyst", label: "Data Analyst (22)" },
+                  { id: "engineer", label: "Data Engineer (24)" },
+                  { id: "intersections", label: "Intersections (15)" },
+                ].map((item) => {
+                  const isSelected = toolEcosystemFilter === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => setToolEcosystemFilter(item.id)}
+                      className={`px-3 py-1.5 rounded-lg font-medium transition-all cursor-pointer shrink-0 ${
+                        isSelected
+                          ? "bg-sky-500/20 text-sky-300 border border-sky-500/50 shadow-sm"
+                          : "text-slate-400 hover:text-slate-200 hover:bg-slate-900"
+                      }`}
+                    >
+                      {item.label}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Tool Search Input */}
+              <div className="relative w-full md:w-72">
+                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  placeholder="Search tools, syntax, functions..."
+                  value={toolSearchQuery}
+                  onChange={(e) => setToolSearchQuery(e.target.value)}
+                  className="w-full pl-9 pr-3 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-xs text-slate-200 focus:outline-none focus:border-sky-400 font-mono"
+                />
+              </div>
+            </div>
+
+            {/* Tools Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredEcosystemTools.map((tool) => (
+                <div
+                  key={tool.id}
+                  className="p-4 rounded-xl bg-slate-900/70 border border-slate-800 hover:border-slate-700 transition-all flex flex-col justify-between group shadow-sm text-left hover:shadow-lg hover:shadow-sky-500/5"
+                >
+                  <div className="space-y-3">
+                    {/* Header: Name, Category Badge, Engine Tab */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-lg bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-400 font-bold">
+                          <Zap className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-sm text-slate-100 group-hover:text-sky-300 transition-colors">
+                            {tool.name}
+                          </h4>
+                          <span className="text-[10px] text-slate-400 font-mono">
+                            {tool.category}
+                          </span>
+                        </div>
+                      </div>
+
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-950 text-sky-400 border border-slate-800 uppercase">
+                        {tool.playgroundTab}
+                      </span>
+                    </div>
+
+                    <p className="text-xs text-slate-300 leading-relaxed line-clamp-2">
+                      {tool.description}
+                    </p>
+
+                    {/* Preloaded Functions & Commands Preview */}
+                    <div className="space-y-1.5 pt-2 border-t border-slate-800">
+                      <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-semibold block">
+                        Executable Functions &amp; Commands:
+                      </span>
+                      <div className="space-y-1">
+                        {tool.functions.slice(0, 2).map((fn) => (
+                          <div
+                            key={fn.name}
+                            className="p-1.5 rounded bg-slate-950/80 border border-slate-850 text-[11px] font-mono flex items-center justify-between"
+                          >
+                            <span className="text-sky-300 truncate max-w-[180px]">{fn.name}</span>
+                            <span className="text-[9px] text-slate-500 truncate max-w-[120px]">
+                              {fn.description.slice(0, 24)}...
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Action Link to Playground Simulation */}
+                  <div className="pt-3 mt-3 border-t border-slate-800">
+                    <Link href={`/app/playground?tool=${tool.id}&tab=${tool.playgroundTab}`}>
+                      <Button
+                        variant="outline"
+                        size="xs"
+                        className="w-full justify-between group-hover:border-sky-500/50 group-hover:bg-sky-500/10 group-hover:text-sky-300"
+                      >
+                        <span className="flex items-center gap-1.5">
+                          <Play className="w-3 h-3 fill-current" />
+                          <span>Run {tool.name} Simulation</span>
+                        </span>
+                        <ArrowRight className="w-3 h-3" />
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {filteredEcosystemTools.length === 0 && (
+              <div className="p-8 text-center text-slate-400 bg-slate-950 rounded-xl border border-slate-800">
+                <Search className="w-6 h-6 mx-auto mb-2 text-slate-500" />
+                <p className="text-sm">No tools matched your search query.</p>
+              </div>
+            )}
           </div>
         )}
       </div>

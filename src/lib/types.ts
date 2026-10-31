@@ -147,3 +147,33 @@ export interface ConnectorItem {
   status: "Connected" | "Needs auth" | "Error" | "Coming soon";
   description: string;
 }
+
+export type ToolDomain =
+  | "data_scientist"
+  | "data_analyst"
+  | "data_engineer"
+  | "all_three"
+  | "ds_da"
+  | "ds_de"
+  | "da_de";
+
+export interface ToolCommand {
+  name: string;
+  syntax: string;
+  description: string;
+  codeSnippet: string;
+  outputPreview?: string;
+}
+
+export interface EssentialTool {
+  id: string;
+  name: string;
+  category: "Data Scientist" | "Data Analyst" | "Data Engineer" | "All Disciplines" | "DS & DA" | "DS & DE" | "DA & DE";
+  domain: ToolDomain;
+  description: string;
+  iconName: string;
+  playgroundTab: Language;
+  primaryTags: string[];
+  functions: ToolCommand[];
+}
+
