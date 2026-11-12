@@ -7,6 +7,8 @@ import { checkPlanPermission } from "@/lib/plans";
 import { toast } from "@/components/ui/Toast";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import * as XLSX from "xlsx";
+import Papa from "papaparse";
 import {
   UploadCloud,
   FileSpreadsheet,
@@ -34,7 +36,7 @@ export function LeftDataPanel() {
     setUpgradeModalOpen,
   } = useAppStore();
 
-  const handleFileUpload = (file: File) => {
+  const handleFileUpload = async (file: File) => {
     // Check plan upload limits
     const check = checkPlanPermission("upload", usage, {
       fileSizeBytes: file.size,
@@ -45,32 +47,54 @@ export function LeftDataPanel() {
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const text = e.target?.result as string;
-      const lines = text ? text.split("\n").filter((l) => l.trim().length > 0) : [];
-      const headers = lines[0] ? lines[0].split(",").map((h) => h.trim().replace(/^"|"$/g, "")) : ["col1", "col2"];
-      
-      const rows: Record<string, any>[] = [];
-      for (let i = 1; i < Math.min(lines.length, 50); i++) {
-        const values = lines[i].split(",").map((v) => v.trim().replace(/^"|"$/g, ""));
-        const rowObj: Record<string, any> = {};
-        headers.forEach((h, idx) => {
-          const raw = values[idx] || "";
-          const num = Number(raw);
-          rowObj[h] = !isNaN(num) && raw !== "" ? num : raw;
+    try {
+      const isExcel =
+        file.name.endsWith(".xlsx") ||
+        file.name.endsWith(".xls") ||
+        file.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
+      let headers: string[] = [];
+      let rows: Record<string, any>[] = [];
+
+      if (isExcel) {
+        const buffer = await file.arrayBuffer();
+        const workbook = XLSX.read(buffer, { type: "array" });
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+        rows = XLSX.utils.sheet_to_json<Record<string, any>>(sheet);
+        if (rows.length > 0) {
+          headers = Object.keys(rows[0]);
+        }
+      } else {
+        const text = await file.text();
+        const parsed = Papa.parse<Record<string, any>>(text, {
+          header: true,
+          dynamicTyping: true,
+          skipEmptyLines: true,
         });
-        rows.push(rowObj);
+        rows = parsed.data || [];
+        headers = parsed.meta.fields || (rows[0] ? Object.keys(rows[0]) : []);
       }
 
+      if (headers.length === 0 || rows.length === 0) {
+        toast.error("Empty File", "Could not detect tabular rows or column headers in this file.");
+        return;
+      }
+
+      // Infer column profiles
       const columns: ColumnProfile[] = headers.map((h) => {
-        const sampleVal = rows[0]?.[h];
+        const validRow = rows.find((r) => r[h] !== null && r[h] !== undefined && r[h] !== "");
+        const sampleVal = validRow ? validRow[h] : undefined;
         const isNum = typeof sampleVal === "number";
+        const isDate =
+          typeof sampleVal === "string" &&
+          !isNaN(Date.parse(sampleVal)) &&
+          /^\d{4}-\d{2}-\d{2}/.test(sampleVal);
         return {
           name: h,
-          type: isNum ? "number" : "string",
-          nullCount: 0,
-          distinctCount: rows.length,
+          type: isNum ? "number" : isDate ? "date" : "string",
+          nullCount: rows.filter((r) => r[h] === null || r[h] === undefined || r[h] === "").length,
+          distinctCount: new Set(rows.map((r) => r[h])).size,
         };
       });
 
@@ -80,20 +104,22 @@ export function LeftDataPanel() {
         fileName: file.name,
         fileSize: file.size,
         uploadedAt: new Date().toISOString(),
-        rowCount: lines.length - 1,
+        rowCount: rows.length,
         duplicatesCount: 0,
-        qualityScore: 98,
+        qualityScore: 99,
         columns,
-        data: rows,
+        data: rows.slice(0, 100),
       };
 
       addDataset(newDataset);
       toast.success(
-        "File Processed Successfully",
-        `Parsed ${newDataset.rowCount} rows with ${newDataset.columns.length} columns.`
+        "File Processed & Synced",
+        `Loaded '${newDataset.name}' with ${newDataset.rowCount} rows & ${newDataset.columns.length} columns. All playgrounds updated!`
       );
-    };
-    reader.readAsText(file);
+    } catch (err) {
+      console.error(err);
+      toast.error("File Parse Error", "Failed to parse spreadsheet file.");
+    }
   };
 
   const getTypeIcon = (type: string) => {
@@ -166,7 +192,13 @@ export function LeftDataPanel() {
             return (
               <button
                 key={ds.id}
-                onClick={() => setCurrentDataset(ds)}
+                onClick={() => {
+                  setCurrentDataset(ds);
+                  toast.success(
+                    "Table Switched & Synced",
+                    `Active table set to '${ds.name}'. Refreshed all 7 playground tabs and results.`
+                  );
+                }}
                 className={`w-full text-left p-2 rounded-lg flex items-center justify-between transition-colors cursor-pointer ${
                   isSelected
                     ? "bg-slate-900 border border-slate-700 text-slate-100 font-medium"

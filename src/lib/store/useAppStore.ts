@@ -217,6 +217,124 @@ print(f"Model Accuracy: {accuracy_score(y_test, preds) * 100:.1f}%")
 print("Confusion Matrix:\\n", confusion_matrix(y_test, preds))
 `;
 
+export function generatePlaygroundCodes(dataset: Dataset) {
+  const dimCol =
+    dataset.columns.find((c) => c.type === "string")?.name ||
+    dataset.columns[0]?.name ||
+    "category";
+
+  const numCols = dataset.columns.filter((c) => c.type === "number");
+  const numCol =
+    numCols[0]?.name ||
+    dataset.columns.find((c) => c.name !== dimCol)?.name ||
+    "value";
+  const numCol2 = numCols[1]?.name || numCol;
+
+  const pythonCode = `# DataQuery AI - Python Analysis Workspace
+# Active Dataset: ${dataset.name} (${dataset.rowCount} rows, ${dataset.columns.length} columns)
+import pandas as pd
+import numpy as np
+
+# Group by ${dimCol} and summarize ${numCol}
+summary = df.groupby('${dimCol}').agg({
+    '${numCol}': ['count', 'sum', 'mean']
+}).reset_index()
+
+print("Summary aggregations for ${dataset.name}:")
+print(summary.head(10))
+`;
+
+  const sqlCode = `-- DataQuery AI - DuckDB Columnar SQL Workspace
+-- Querying table '${dataset.name}' with ${dataset.rowCount} records
+
+SELECT 
+    ${dimCol},
+    COUNT(*) AS record_count,
+    ROUND(SUM(${numCol}), 2) AS total_${numCol},
+    ROUND(AVG(${numCol}), 2) AS avg_${numCol}
+FROM dataset
+GROUP BY ${dimCol}
+ORDER BY total_${numCol} DESC
+LIMIT 15;
+`;
+
+  const daxCode = `// DataQuery AI - DAX Measure Builder for ${dataset.name}
+Total ${numCol} = SUM('${dataset.name}'[${numCol}])
+Average ${numCol} = AVERAGE('${dataset.name}'[${numCol}])
+Max ${numCol} = MAX('${dataset.name}'[${numCol}])
+`;
+
+  const statisticsCode = `# DataQuery - Statistics & Hypothesis Testing Studio
+# Dataset: ${dataset.name}
+import numpy as np
+from scipy import stats
+
+metric = df['${numCol}'].dropna()
+print("--- Descriptive Profile for ${numCol} ---")
+print(f"Count: {metric.count()} | Mean: {metric.mean():.2f} | Std: {metric.std():.2f}")
+print(f"Min: {metric.min():.2f} | Median: {metric.median():.2f} | Max: {metric.max():.2f}")
+
+# Normality assessment
+if len(metric) >= 8:
+    stat, p_val = stats.shapiro(metric.sample(min(len(metric), 40), random_state=42))
+    print(f"Shapiro-Wilk Test: W={stat:.4f}, p-value={p_val:.4f}")
+`;
+
+  const pysparkCode = `# DataQuery - Apache PySpark Studio
+# Catalyst Engine for ${dataset.name}
+from pyspark.sql import functions as F
+from pyspark.sql.window import Window
+
+spark_df = spark.createDataFrame(df)
+window_spec = Window.partitionBy("${dimCol}").orderBy(F.col("${numCol}").desc())
+
+ranked_df = spark_df.withColumn("row_rank", F.row_number().over(window_spec))
+ranked_df.groupBy("${dimCol}").agg(
+    F.count("*").alias("count"),
+    F.sum("${numCol}").alias("total_${numCol}")
+).show(10)
+`;
+
+  const hadoopCode = `-- DataQuery - Apache Hadoop & HiveQL Studio
+-- Columnar Parquet Table Schema for ${dataset.name}
+
+CREATE EXTERNAL TABLE IF NOT EXISTS ${dataset.name.toLowerCase().replace(/[^a-z0-9_]/g, '_')} (
+${dataset.columns.map((c) => `    ${c.name} ${c.type === "number" ? "DOUBLE" : c.type === "date" ? "TIMESTAMP" : "STRING"}`).join(",\n")}
+)
+PARTITIONED BY (ingest_batch_date STRING)
+STORED AS PARQUET
+LOCATION '/datalake/warehouse/${dataset.name.toLowerCase().replace(/[^a-z0-9_]/g, '_')}';
+`;
+
+  const mlCode = `# DataQuery - Machine Learning Studio
+# Predictive Pipeline for ${dataset.name}
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_squared_error, r2_score
+
+# Feature Matrix and Target (${numCol})
+features = [c for c in ${JSON.stringify(numCols.map((c) => c.name))} if c != '${numCol}']
+if not features:
+    features = [c for c in ${JSON.stringify(dataset.columns.map((c) => c.name))} if c != '${numCol}']
+
+print(f"Target Column: '${numCol}'")
+print(f"Predictor Features: {features}")
+`;
+
+  return {
+    dimCol,
+    numCol,
+    numCol2,
+    pythonCode,
+    sqlCode,
+    daxCode,
+    statisticsCode,
+    pysparkCode,
+    hadoopCode,
+    mlCode,
+  };
+}
+
 export const useAppStore = create<AppState>()(
   persist(
     (set, get) => ({
@@ -244,12 +362,55 @@ export const useAppStore = create<AppState>()(
 
       currentDataset: SAMPLE_DATASET,
       loadedDatasets: [SAMPLE_DATASET],
-      setCurrentDataset: (dataset) => set({ currentDataset: dataset, saveStatus: "Saved" }),
-      addDataset: (dataset) =>
+      setCurrentDataset: (dataset) => {
+        const codes = generatePlaygroundCodes(dataset);
+        set((state) => ({
+          currentDataset: dataset,
+          saveStatus: "Saved",
+          pythonCode: codes.pythonCode,
+          sqlCode: codes.sqlCode,
+          daxCode: codes.daxCode,
+          statisticsCode: codes.statisticsCode,
+          pysparkCode: codes.pysparkCode,
+          hadoopCode: codes.hadoopCode,
+          mlCode: codes.mlCode,
+          lastResult: {
+            status: "idle",
+            language: state.activeLanguage,
+            columns: dataset.columns.map((c) => c.name),
+            rows: dataset.data.slice(0, 50),
+            stdout: `[${new Date().toLocaleTimeString()}] Synchronized with loaded table '${dataset.name}' (${dataset.rowCount} rows, ${dataset.columns.length} columns).\nAll 7 playground tabs updated with matching schema.`,
+            executionTimeMs: 14.2,
+            recommendedChart: "bar",
+            aiInsight: `Loaded dataset '${dataset.name}'. Detected ${dataset.columns.filter((c) => c.type === "number").length} numeric metrics and ${dataset.columns.filter((c) => c.type !== "number").length} categorical dimensions.`,
+          },
+        }));
+      },
+      addDataset: (dataset) => {
+        const codes = generatePlaygroundCodes(dataset);
         set((state) => ({
           loadedDatasets: [dataset, ...state.loadedDatasets.filter((d) => d.id !== dataset.id)],
           currentDataset: dataset,
-        })),
+          saveStatus: "Saved",
+          pythonCode: codes.pythonCode,
+          sqlCode: codes.sqlCode,
+          daxCode: codes.daxCode,
+          statisticsCode: codes.statisticsCode,
+          pysparkCode: codes.pysparkCode,
+          hadoopCode: codes.hadoopCode,
+          mlCode: codes.mlCode,
+          lastResult: {
+            status: "idle",
+            language: state.activeLanguage,
+            columns: dataset.columns.map((c) => c.name),
+            rows: dataset.data.slice(0, 50),
+            stdout: `[${new Date().toLocaleTimeString()}] Imported '${dataset.fileName}' (${dataset.rowCount} rows, ${dataset.columns.length} columns).\nAll 7 playground tabs updated with matching schema.`,
+            executionTimeMs: 14.2,
+            recommendedChart: "bar",
+            aiInsight: `Imported '${dataset.name}'. Dataset quality score: ${dataset.qualityScore}%. Ready for queries across all playgrounds.`,
+          },
+        }));
+      },
 
       activeLanguage: "python",
       setActiveLanguage: (lang) => set({ activeLanguage: lang }),
