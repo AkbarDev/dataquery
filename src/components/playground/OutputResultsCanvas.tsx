@@ -374,7 +374,47 @@ export function OutputResultsCanvas({
         {/* TAB 1: FULL-WIDTH BENCHMARK TABLE RESULTS */}
         {activeOutputTab === "table" && (
           <div className="h-full w-full flex flex-col bg-slate-950/80 border border-slate-800/80 rounded-xl overflow-hidden">
-            {filteredRows.length > 0 ? (
+            {(isExecuting || lastResult.status === "running") ? (
+              /* Loading Skeleton while executing */
+              <div className="flex-1 overflow-hidden">
+                <table className="w-full text-left text-xs text-slate-200 border-collapse">
+                  <thead className="bg-[#0f172a] sticky top-0 z-10 border-b border-slate-800 text-[11px] font-mono uppercase tracking-wider text-slate-400 select-none">
+                    <tr>
+                      <th className="w-12 px-3 py-2 text-center text-slate-600 border-r border-slate-800/60 font-mono">#</th>
+                      {[1,2,3,4,5].map((i) => (
+                        <th key={i} className="px-3 py-2 border-r border-slate-800/60">
+                          <div className="h-3 w-20 bg-slate-800 rounded animate-pulse" />
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800/50">
+                    {Array.from({ length: 8 }).map((_, rowIdx) => (
+                      <tr key={rowIdx} className="hover:bg-sky-500/5">
+                        <td className="w-12 px-3 py-2 text-center border-r border-slate-800/60 bg-slate-950/40">
+                          <div className="h-2.5 w-5 bg-slate-800 rounded animate-pulse mx-auto" />
+                        </td>
+                        {[1,2,3,4,5].map((i) => (
+                          <td key={i} className="px-3 py-2 border-r border-slate-800/40">
+                            <div className={`h-2.5 bg-slate-800 rounded animate-pulse ${i % 2 === 0 ? "w-16" : "w-24"}`} style={{ animationDelay: `${rowIdx * 50}ms` }} />
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <div className="flex flex-col items-center gap-2 bg-slate-900/90 border border-slate-700 rounded-xl px-6 py-4 shadow-xl">
+                    <svg className="w-6 h-6 text-sky-400 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                    <span className="text-xs text-sky-400 font-mono font-semibold">Executing query...</span>
+                    <span className="text-[11px] text-slate-500 font-mono">Previous results cleared</span>
+                  </div>
+                </div>
+              </div>
+            ) : filteredRows.length > 0 ? (
               <div className="flex-1 overflow-auto">
                 <table className="w-full text-left text-xs text-slate-200 border-collapse">
                   <thead className="bg-[#0f172a] sticky top-0 z-10 border-b border-slate-800 text-[11px] font-mono uppercase tracking-wider text-slate-400 select-none">
@@ -543,8 +583,24 @@ export function OutputResultsCanvas({
             </div>
 
             {/* Visual Canvas */}
-            <div className="flex-1 w-full min-h-[200px] py-2">
-              <ResponsiveContainer width="100%" height="100%">
+            <div className="flex-1 w-full min-h-[200px] py-2 relative">
+              {(isExecuting || lastResult.status === "running") ? (
+                <div className="h-full w-full flex items-end gap-2 pb-6 px-4">
+                  {[0.4, 0.7, 0.55, 0.9, 0.65, 0.8, 0.5, 0.75].map((h, i) => (
+                    <div key={i} className="flex-1 bg-slate-800 rounded-t animate-pulse" style={{ height: `${h * 100}%`, animationDelay: `${i * 80}ms` }} />
+                  ))}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="flex flex-col items-center gap-2 bg-slate-900/90 border border-slate-700 rounded-xl px-6 py-4 shadow-xl">
+                      <svg className="w-6 h-6 text-sky-400 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                      </svg>
+                      <span className="text-xs text-sky-400 font-mono font-semibold">Rendering chart...</span>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
                 {chartType === "bar" ? (
                   <BarChart data={rawRows} margin={{ top: 10, right: 20, left: 0, bottom: 20 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" vertical={false} />
@@ -631,7 +687,8 @@ export function OutputResultsCanvas({
                     </Pie>
                   </PieChart>
                 )}
-              </ResponsiveContainer>
+                </ResponsiveContainer>
+              )}
             </div>
 
             {/* Quick Metrics Strip */}
@@ -776,3 +833,4 @@ export function OutputResultsCanvas({
     </div>
   );
 }
+

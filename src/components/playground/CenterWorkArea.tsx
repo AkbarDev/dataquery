@@ -150,6 +150,17 @@ export function CenterWorkArea() {
     setIsExecuting(true);
     setSaveStatus("Saving...");
 
+    // Immediately clear previous results and indicate execution in progress
+    setLastResult({
+      status: "running",
+      language: activeLanguage,
+      columns: [],
+      rows: [],
+      stdout: `[${new Date().toLocaleTimeString()}] Executing ${activeLanguage.toUpperCase()} query on table '${currentDataset.name}'...\nClearing previous results.`,
+      executionTimeMs: 0,
+      aiInsight: `Evaluating query expression across ${currentDataset.name}...`,
+    });
+
     try {
       const activeCode =
         activeLanguage === "python"
@@ -199,6 +210,17 @@ export function CenterWorkArea() {
     setIsExecuting(true);
     setSaveStatus("Saving...");
 
+    // Immediately clear previous results
+    setLastResult({
+      status: "running",
+      language: activeLanguage,
+      columns: [],
+      rows: [],
+      stdout: `[${new Date().toLocaleTimeString()}] Running automated pipeline recipe "${selectedAutomatePreset}" on table '${currentDataset.name}'...\nClearing previous results.`,
+      executionTimeMs: 0,
+      aiInsight: `Executing automated pipeline recipe across ${currentDataset.name}...`,
+    });
+
     try {
       const steps = await api.runAutomate(
         { preset: selectedAutomatePreset, dataset: currentDataset },
@@ -226,6 +248,37 @@ export function CenterWorkArea() {
       setIsExecuting(false);
     }
   };
+
+  // Switch tabs with auto-clearing and syncing output canvas
+  const handleTabChange = (newLang: Language) => {
+    setActiveLanguage(newLang);
+    setLastResult({
+      status: "idle",
+      language: newLang,
+      columns: currentDataset.columns.map((c) => c.name),
+      rows: currentDataset.data.slice(0, 50),
+      stdout: `[${new Date().toLocaleTimeString()}] Switched to ${newLang.toUpperCase()} playground.\nTarget Table: ${currentDataset.name} (${currentDataset.rowCount} rows).\nPress 'Run' (Ctrl+Enter) to evaluate.`,
+      executionTimeMs: 0,
+      aiInsight: `Switched to ${newLang.toUpperCase()} playground. Output results reset for table '${currentDataset.name}'.`,
+    });
+  };
+
+  // Auto-sync Power BI visual axes to match current dataset schema
+  useEffect(() => {
+    if (!currentDataset || !currentDataset.columns) return;
+    const catCol =
+      currentDataset.columns.find((c) => c.type !== "number")?.name ||
+      currentDataset.columns[0]?.name ||
+      "category";
+    const numCol =
+      currentDataset.columns.find((c) => c.type === "number")?.name ||
+      currentDataset.columns[1]?.name ||
+      currentDataset.columns[0]?.name ||
+      "value";
+    setPowerBiCategoryCol(catCol);
+    setPowerBiMetricCol(numCol);
+    setPowerBiMeasure(`Total ${numCol} = SUM(${currentDataset.name}[${numCol}])`);
+  }, [currentDataset]);
 
   // 3. Sync tab from URL query param if present
   useEffect(() => {
@@ -356,7 +409,7 @@ export function CenterWorkArea() {
               },
             ]}
             activeTab={activeLanguage}
-            onChange={(tab) => setActiveLanguage(tab as Language)}
+            onChange={(tab) => handleTabChange(tab as Language)}
           />
         </div>
 

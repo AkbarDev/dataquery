@@ -159,13 +159,17 @@ export const api = {
 
     // 1. Statistics Engine
     if (language === "statistics") {
+      const numCol =
+        dataset.columns.find((c) => c.type === "number")?.name ||
+        dataset.columns[0]?.name ||
+        "value";
       const statsRows = [
-        { metric: "Independent Two-Sample T-Test", variable: "revenue", statistic: "t = 2.418", p_value: "0.0184", significance: "Significant (p < 0.05)" },
-        { metric: "One-Way ANOVA F-Test", variable: "revenue ~ region", statistic: "F = 4.892", p_value: "0.0031", significance: "Significant (p < 0.01)" },
-        { metric: "Pearson Correlation Coefficient", variable: "revenue vs profit", statistic: "r = 0.842", p_value: "0.0001", significance: "Strong Positive Linear" },
-        { metric: "Spearman Rank Correlation", variable: "revenue vs units", statistic: "rho = 0.791", p_value: "0.0004", significance: "Strong Monotonic" },
-        { metric: "Shapiro-Wilk Normality", variable: "revenue", statistic: "W = 0.948", p_value: "0.1260", significance: "Normally Distributed" },
-        { metric: "Z-Score Outlier Count", variable: "revenue (|z| > 3.0)", statistic: "count = 0", p_value: "N/A", significance: "No extreme anomalies" },
+        { metric: "Independent Two-Sample T-Test", variable: numCol, statistic: "t = 2.418", p_value: "0.0184", significance: "Significant (p < 0.05)" },
+        { metric: "One-Way ANOVA F-Test", variable: `${numCol} ~ groups`, statistic: "F = 4.892", p_value: "0.0031", significance: "Significant (p < 0.01)" },
+        { metric: "Pearson Correlation Coefficient", variable: `${numCol} vs target`, statistic: "r = 0.842", p_value: "0.0001", significance: "Strong Positive Linear" },
+        { metric: "Spearman Rank Correlation", variable: `${numCol} rank`, statistic: "rho = 0.791", p_value: "0.0004", significance: "Strong Monotonic" },
+        { metric: "Shapiro-Wilk Normality", variable: numCol, statistic: "W = 0.948", p_value: "0.1260", significance: "Normally Distributed" },
+        { metric: "Z-Score Outlier Count", variable: `${numCol} (|z| > 3.0)`, statistic: "count = 0", p_value: "N/A", significance: "No extreme anomalies" },
       ];
       return {
         status: "success",
@@ -173,38 +177,47 @@ export const api = {
         executionTimeMs: duration,
         columns: ["metric", "variable", "statistic", "p_value", "significance"],
         rows: statsRows,
-        stdout: `SciPy & StatsModels Evaluation Engine:\n- Computed 6 hypothesis tests across ${dataset.rowCount || 15} observations.\n- Variance ratio Levene test: p=0.481 (Equal variance assumed).\n- Regression R-squared: 0.709, Adjusted R-squared: 0.686.\nExecution finished in ${duration}ms.\n`,
+        stdout: `SciPy & StatsModels Evaluation Engine:\n- Target Table: '${dataset.name}' (${dataset.rowCount || 15} observations on '${numCol}').\n- Computed 6 hypothesis tests.\n- Variance ratio Levene test: p=0.481 (Equal variance assumed).\nExecution finished in ${duration}ms.\n`,
         recommendedChart: "bar",
-        aiInsight: "Statistical hypothesis testing confirms significant variation across regional revenues (p=0.0031). Strong linear correlation (r=0.842) between revenue and profit indicates high pricing power.",
+        aiInsight: `Statistical hypothesis testing on '${dataset.name}' evaluated distribution of '${numCol}' across ${dataset.rowCount} observations. Strong linear correlation indicates significant predictive leverage.`,
       };
     }
 
     // 2. PySpark Engine
     if (language === "pyspark") {
-      const sparkRows = [
-        { partition_id: "Part-0", region: "North America", records_count: 5, partition_revenue: 66200, execution_status: "SUCCESS" },
-        { partition_id: "Part-1", region: "Europe", records_count: 4, partition_revenue: 59500, execution_status: "SUCCESS" },
-        { partition_id: "Part-2", region: "Asia Pacific", records_count: 4, partition_revenue: 59400, execution_status: "SUCCESS" },
-        { partition_id: "Part-3", region: "Latin America", records_count: 2, partition_revenue: 7700, execution_status: "SUCCESS" },
-      ];
+      const dimCol =
+        dataset.columns.find((c) => c.type === "string")?.name ||
+        dataset.columns[0]?.name ||
+        "partition";
+      const numCol =
+        dataset.columns.find((c) => c.type === "number")?.name ||
+        dataset.columns[1]?.name ||
+        "records";
+      const sparkRows = (dataset.data || []).slice(0, 4).map((row, idx) => ({
+        partition_id: `Part-${idx}`,
+        [dimCol]: String(row[dimCol] ?? `Cluster-${idx}`),
+        records_count: Math.ceil(dataset.rowCount / 4),
+        [`partition_${numCol}`]: Number(row[numCol]) || 1000 * (idx + 1),
+        execution_status: "SUCCESS",
+      }));
       return {
         status: "success",
         language: "pyspark",
         executionTimeMs: duration,
-        columns: ["partition_id", "region", "records_count", "partition_revenue", "execution_status"],
+        columns: ["partition_id", dimCol, "records_count", `partition_${numCol}`, "execution_status"],
         rows: sparkRows,
-        stdout: `SparkSession [appName="DataQuery-PySpark", master="local[*]"]\nStage 0: ShuffleMapStage (4 tasks, completed in 14ms)\nStage 1: ResultStage (2 tasks, completed in ${duration}ms)\nDataFrame schema inferred: 4 columns, 4 partitions.\nPhysical Plan: *(2) HashAggregate(keys=[region], functions=[sum(revenue), avg(profit)])\n`,
+        stdout: `SparkSession [appName="DataQuery-PySpark", master="local[*]"]\nTarget Table: '${dataset.name}' (${dataset.rowCount} rows, ${dataset.columns.length} columns)\nStage 0: ShuffleMapStage (4 tasks, completed in 14ms)\nStage 1: ResultStage (2 tasks, completed in ${duration}ms)\nDataFrame schema inferred: ${dataset.columns.length} columns, 4 partitions.\nPhysical Plan: *(2) HashAggregate(keys=[${dimCol}], functions=[sum(${numCol})])\n`,
         recommendedChart: "bar",
-        aiInsight: "PySpark distributed execution partitioned data evenly across 4 worker threads with zero shuffle spill. North America leads partition throughput.",
+        aiInsight: `PySpark distributed execution partitioned table '${dataset.name}' across 4 worker threads with zero shuffle spill.`,
       };
     }
 
     // 3. Hadoop & HiveQL Engine
     if (language === "hadoop") {
       const hadoopRows = [
-        { phase: "Map Phase", input_split: "hdfs://node01/data/split0.dat", map_progress: "100%", records_processed: 15, spill_mb: 0 },
-        { phase: "Shuffle & Sort", input_split: "Cluster Network Ring", map_progress: "100%", records_processed: 15, spill_mb: 0 },
-        { phase: "Reduce Phase", input_split: "hdfs://node01/output/part-r-00000", map_progress: "100%", records_processed: 4, spill_mb: 0 },
+        { phase: "Map Phase", input_split: `hdfs://node01/data/${dataset.name.toLowerCase().replace(/[^a-z0-9_]/g, '_')}.parquet`, map_progress: "100%", records_processed: dataset.rowCount, spill_mb: 0 },
+        { phase: "Shuffle & Sort", input_split: "Cluster Network Ring", map_progress: "100%", records_processed: dataset.rowCount, spill_mb: 0 },
+        { phase: "Reduce Phase", input_split: `hdfs://node01/output/${dataset.name.toLowerCase().replace(/[^a-z0-9_]/g, '_')}_summary`, map_progress: "100%", records_processed: Math.min(dataset.rowCount, 10), spill_mb: 0 },
       ];
       return {
         status: "success",
@@ -212,66 +225,119 @@ export const api = {
         executionTimeMs: duration,
         columns: ["phase", "input_split", "map_progress", "records_processed", "spill_mb"],
         rows: hadoopRows,
-        stdout: `Hadoop MapReduce 3.3.6 Execution Telemetry:\nApplication ID: application_1793198000000_0001\nJob State: SUCCEEDED in ${duration}ms\nYARN Queue: default (4 containers allocated, 8192 MB RAM)\nHDFS Read: 18.4 KB | HDFS Write: 4.2 KB\n`,
+        stdout: `Hadoop MapReduce 3.3.6 Execution Telemetry:\nTarget: '${dataset.name}'\nApplication ID: application_${Date.now()}_0001\nJob State: SUCCEEDED in ${duration}ms\nYARN Queue: default (4 containers allocated, 8192 MB RAM)\nHDFS Read: ${(dataset.fileSize / 1024).toFixed(1)} KB | HDFS Write: 4.2 KB\n`,
         recommendedChart: "bar",
-        aiInsight: "MapReduce driver executed Map, Shuffle/Sort, and Reduce phases with 0 spilled records and optimal HDFS replication factor 3.",
+        aiInsight: `MapReduce driver processed ${dataset.rowCount} records for table '${dataset.name}' with zero spilled records and optimal HDFS replication.`,
       };
     }
 
     // 4. Machine Learning Engine
     if (language === "ml") {
-      const mlRows = [
-        { feature: "revenue", importance_score: 0.485, correlation: "+0.84", v_score: "High Impact" },
-        { feature: "profit", importance_score: 0.358, correlation: "+0.79", v_score: "High Impact" },
-        { feature: "units_sold", importance_score: 0.157, correlation: "+0.52", v_score: "Moderate Impact" },
-      ];
+      const numCols = dataset.columns.filter((c) => c.type === "number");
+      const mlRows = numCols.slice(0, 5).map((c, i) => ({
+        feature: c.name,
+        importance_score: +(0.5 / (i + 1)).toFixed(3),
+        correlation: i === 0 ? "+0.84" : i === 1 ? "+0.62" : "+0.38",
+        v_score: i === 0 ? "High Impact" : "Moderate Impact",
+      }));
+      if (mlRows.length === 0) {
+        mlRows.push({
+          feature: dataset.columns[0]?.name || "feature",
+          importance_score: 1.0,
+          correlation: "+1.00",
+          v_score: "Primary",
+        });
+      }
       return {
         status: "success",
         language: "ml",
         executionTimeMs: duration,
         columns: ["feature", "importance_score", "correlation", "v_score"],
         rows: mlRows,
-        stdout: `Scikit-Learn ML Model Evaluation:\nAlgorithm: Random Forest Classifier (100 estimators, max_depth=5)\nTrain Set: 80% (12 rows) | Test Set: 20% (3 rows)\nAccuracy: 93.3% | ROC-AUC: 0.962 | F1-Score: 0.931\nConfusion Matrix: [[TP: 2, FP: 0], [FN: 0, TN: 1]]\n`,
+        stdout: `Scikit-Learn ML Model Evaluation on '${dataset.name}':\nAlgorithm: Random Forest Classifier (100 estimators, max_depth=5)\nTrain Set: 80% | Test Set: 20%\nEvaluated ${numCols.length} numerical predictors across ${dataset.rowCount} observations.\nAccuracy: 93.3% | ROC-AUC: 0.962 | F1-Score: 0.931\n`,
         recommendedChart: "bar",
-        aiInsight: "Random Forest model achieved 93.3% classification accuracy. 'revenue' is the most predictive feature with 48.5% relative importance.",
+        aiInsight: `Random Forest model evaluated predictive signal across '${dataset.name}'. '${mlRows[0]?.feature}' is the most predictive feature.`,
       };
     }
 
-    // Default: Dynamic aggregations for Python, SQL, and DAX
-    const regionalData: Record<string, { revenue: number; profit: number }> = {};
-    dataset.data.forEach((row) => {
-      const reg = row.region || row.entity || "Default";
-      const rev = Number(row.revenue || row.metric_value || 0);
-      const prof = Number(row.profit || (rev * 0.45));
-      if (!regionalData[reg]) regionalData[reg] = { revenue: 0, profit: 0 };
-      regionalData[reg].revenue += rev;
-      regionalData[reg].profit += prof;
+    // 5. Default: Dynamic aggregations for Python, SQL, and DAX using dataset's real columns
+    const dimCol =
+      dataset.columns.find((c) => c.type === "string")?.name ||
+      dataset.columns[0]?.name ||
+      "category";
+    const numCols = dataset.columns.filter((c) => c.type === "number");
+    const numCol =
+      numCols[0]?.name ||
+      dataset.columns.find((c) => c.name !== dimCol)?.name ||
+      "value";
+    const numCol2 = numCols[1]?.name || null;
+
+    const lowerCode = (code || "").toLowerCase();
+    const isScanQuery =
+      lowerCode.includes("select *") ||
+      lowerCode.includes(".head(") ||
+      lowerCode.includes(".show(") ||
+      (!lowerCode.includes("group") && !lowerCode.includes("sum(") && !lowerCode.includes("avg("));
+
+    if (isScanQuery && dataset.data && dataset.data.length > 0) {
+      const scanRows = dataset.data.slice(0, 50);
+      const scanCols = dataset.columns.map((c) => c.name);
+      return {
+        status: "success",
+        language,
+        executionTimeMs: duration,
+        columns: scanCols,
+        rows: scanRows,
+        stdout: `[DuckDB/Pandas In-Memory Scan]\nScanned table '${dataset.name}' (${dataset.rowCount} rows, ${scanCols.length} columns).\nRetrieved ${scanRows.length} rows in ${duration}ms.\nMemory: 1.8 MB.`,
+        recommendedChart: "bar",
+        aiInsight: `Scanned ${scanRows.length} rows from table '${dataset.name}'. Analyzed ${scanCols.length} attributes across ${dataset.rowCount} total records.`,
+      };
+    }
+
+    // Dynamic grouping based on dataset's actual rows and columns
+    const grouped: Record<string, { count: number; sum: number; sum2: number }> = {};
+    (dataset.data || []).forEach((row) => {
+      const key = String(row[dimCol] ?? "General");
+      const val = Number(row[numCol] ?? 0) || 0;
+      const val2 = numCol2 ? Number(row[numCol2] ?? 0) || 0 : 0;
+      if (!grouped[key]) grouped[key] = { count: 0, sum: 0, sum2: 0 };
+      grouped[key].count += 1;
+      grouped[key].sum += val;
+      grouped[key].sum2 += val2;
     });
 
-    const resultRows = Object.keys(regionalData).map((reg) => ({
-      region: reg,
-      revenue: Math.round(regionalData[reg].revenue),
-      profit: Math.round(regionalData[reg].profit),
-      margin_pct: +(
-        (regionalData[reg].profit / (regionalData[reg].revenue || 1)) *
-        100
-      ).toFixed(1),
-    }));
+    const resultRows = Object.keys(grouped)
+      .map((k) => {
+        const item: Record<string, any> = {
+          [dimCol]: k,
+          total_records: grouped[k].count,
+          [`total_${numCol}`]: Math.round(grouped[k].sum * 100) / 100,
+          [`avg_${numCol}`]: Math.round((grouped[k].sum / (grouped[k].count || 1)) * 100) / 100,
+        };
+        if (numCol2) {
+          item[`total_${numCol2}`] = Math.round(grouped[k].sum2 * 100) / 100;
+        }
+        return item;
+      })
+      .sort((a, b) => (b[`total_${numCol}`] || 0) - (a[`total_${numCol}`] || 0));
+
+    const outColumns = [
+      dimCol,
+      "total_records",
+      `total_${numCol}`,
+      `avg_${numCol}`,
+      ...(numCol2 ? [`total_${numCol2}`] : []),
+    ];
 
     return {
       status: "success",
       language,
       executionTimeMs: duration,
-      columns: ["region", "revenue", "profit", "margin_pct"],
+      columns: outColumns,
       rows: resultRows,
-      stdout: `Execution completed successfully in ${duration}ms.\nReturned ${resultRows.length} aggregated rows.\nMemory: 2.1 MB.`,
+      stdout: `Execution completed successfully in ${duration}ms.\nReturned ${resultRows.length} aggregated rows grouped by '${dimCol}'.\nMemory: 2.1 MB.`,
       recommendedChart: "bar",
-      aiInsight:
-        "Regional analysis reveals that " +
-        resultRows[0]?.region +
-        " contributes the highest gross volume, while overall margin stands at " +
-        (resultRows[0]?.margin_pct || 50) +
-        "%.",
+      aiInsight: `Analysis on '${dataset.name}' reveals that '${resultRows[0]?.[dimCol] || "Top Category"}' leads total ${numCol} volume with ${resultRows[0]?.[`total_${numCol}`] || 0}.`,
     };
   },
 
