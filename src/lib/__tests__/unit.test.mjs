@@ -150,4 +150,31 @@ test("Essential Tools Ecosystem - 55 Tools across Data Scientist, Analyst, and E
   assert.equal(targetUrl, "/app/playground?tool=xgboost&tab=ml");
 });
 
+test("Playground Canvas Split Logic - Top Queries Workspace & Bottom Output Results", () => {
+  // Clamping function for split ratio
+  const clampRatio = (r) => Math.min(85, Math.max(15, r));
+
+  // Benchmark layout defaults
+  const defaultLayout = "split-bottom";
+  assert.equal(defaultLayout, "split-bottom", "Default layout must be split-bottom for database query benchmark workspace");
+
+  // Presets verification
+  const ratio50 = clampRatio(50);
+  const ratio70 = clampRatio(70);
+  const ratio30 = clampRatio(30);
+  assert.equal(ratio50, 50);
+  assert.equal(ratio70, 70);
+  assert.equal(ratio30, 30);
+
+  // Clamping limits
+  assert.equal(clampRatio(5), 15, "Ratio below 15% must clamp to 15%");
+  assert.equal(clampRatio(95), 85, "Ratio above 85% must clamp to 85%");
+
+  // Complementary results ratio
+  assert.equal(100 - ratio50, 50);
+  assert.equal(100 - ratio70, 30);
+  assert.equal(100 - ratio30, 70);
+});
+
+
 

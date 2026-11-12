@@ -32,6 +32,12 @@ export interface AppState {
   setActiveLanguage: (lang: Language) => void;
   playgroundMode: "manual" | "automate";
   setPlaygroundMode: (mode: "manual" | "automate") => void;
+  playgroundLayout: "split-bottom" | "split-right" | "max-editor" | "max-results";
+  setPlaygroundLayout: (layout: "split-bottom" | "split-right" | "max-editor" | "max-results") => void;
+  resultsSplitRatio: number; // percentage height for top queries half (e.g. 50 = 50% queries / 50% output results)
+  setResultsSplitRatio: (ratio: number) => void;
+  isResultsCollapsed: boolean;
+  setIsResultsCollapsed: (collapsed: boolean) => void;
 
   // Editors Code
   pythonCode: string;
@@ -249,6 +255,12 @@ export const useAppStore = create<AppState>()(
       setActiveLanguage: (lang) => set({ activeLanguage: lang }),
       playgroundMode: "manual",
       setPlaygroundMode: (mode) => set({ playgroundMode: mode }),
+      playgroundLayout: "split-bottom",
+      setPlaygroundLayout: (layout) => set({ playgroundLayout: layout }),
+      resultsSplitRatio: 52,
+      setResultsSplitRatio: (ratio) => set({ resultsSplitRatio: Math.min(85, Math.max(15, ratio)) }),
+      isResultsCollapsed: false,
+      setIsResultsCollapsed: (collapsed) => set({ isResultsCollapsed: collapsed }),
 
       pythonCode: DEFAULT_PYTHON_CODE,
       sqlCode: DEFAULT_SQL_CODE,
@@ -364,6 +376,8 @@ export const useAppStore = create<AppState>()(
         usage: state.usage,
         pinnedWidgets: state.pinnedWidgets,
         stepHistory: state.stepHistory,
+        playgroundLayout: state.playgroundLayout,
+        resultsSplitRatio: state.resultsSplitRatio,
       }),
     }
   )

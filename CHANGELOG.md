@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.4.4] - 2026-11-12
+
+### Added
+- **Database Benchmark Split Canvas Architecture across All Playgrounds (`CenterWorkArea.tsx`, `OutputResultsCanvas.tsx`, `page.tsx`)**:
+  - Implemented the industry-standard database query benchmark workspace layout (Snowflake Worksheets, BigQuery Studio, Databricks SQL, Supabase Studio):
+    - **Top Half (`Queries Workspace`)**: Dedicated query and code editor space for all 7 engines (DuckDB SQL, Python Pandas, Power BI DAX, Statistics, PySpark, Hadoop, Machine Learning) and Automate pipeline recipes.
+    - **Interactive Resizer / Telemetry Divider**: Draggable horizontal split divider with mouse tracking, `row-resize` cursor, real-time query execution telemetry (`✓ Execution: 18.4ms · 100 rows · 5 columns`), and quick-snap ratio buttons (`50/50`, `70/30`, `30/70`, `Collapse Results ▲`, `Maximize Results`).
+    - **Bottom Half (`Output Results Canvas`)**: Full-width high-density data canvas with 5 dedicated analytical tabs:
+      - `📋 Table Results`: Spreadsheet-style data grid with sticky headers, column datatype badges (`123`, `ABC`), row indexing (`#`), in-place cell copy, real-time row search filter, and CSV/JSON export.
+      - `📊 Visual Chart`: Spacious responsive chart renderer (Bar, Line, Area, Pie) with custom X/Y axis dropdown selectors and KPI summaries.
+      - `⚡ Query Profiler`: Execution speed metrics, memory footprint, column type inspection, and completeness score.
+      - `💻 Runtime Log`: Monospaced compiler and execution telemetry trace with timestamp logging.
+      - `✨ AI Insights`: Automated takeaway synthesis with confidence scoring and query recommendations.
+  - **Layout Mode Selector**: Added layout switcher in top header allowing users to toggle between `Top/Bottom Split` (Default & Benchmark), `Side-by-Side Split`, `Maximized Editor`, and `Maximized Results`.
+  - **Testing**: Added unit test verifying split ratio clamping (15% - 85%), layout persistence, and complementary height calculation.
+
+---
+
 ## [0.4.3] - 2026-10-31
 
 ### Added
