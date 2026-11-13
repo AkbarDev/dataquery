@@ -2,8 +2,9 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { Sparkles, Terminal, Play, ArrowRight, Menu, X, Shield, Layers, BookOpen } from "lucide-react";
+import { Sparkles, Play, ArrowRight, Menu, X, Shield, Layers, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { DataQueryLogo } from "@/components/ui/DataQueryLogo";
 
 export function PublicNav() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -13,8 +14,8 @@ export function PublicNav() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
         {/* Brand Logo */}
         <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center shadow-md shadow-sky-500/20 group-hover:scale-105 transition-transform">
-            <Terminal className="w-4 h-4 text-slate-950 stroke-[2.5]" />
+          <div className="group-hover:scale-105 transition-transform">
+            <DataQueryLogo size={34} />
           </div>
           <div className="flex items-center gap-1.5">
             <span className="font-bold text-base tracking-tight text-slate-100 group-hover:text-sky-400 transition-colors">

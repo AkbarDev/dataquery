@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { PLAN_CONFIGS } from "@/lib/plans";
 import {
-  Terminal,
   Play,
   LayoutDashboard,
   FileText,
@@ -18,6 +17,7 @@ import {
   ArrowUpRight,
   Database,
 } from "lucide-react";
+import { DataQueryLogo } from "@/components/ui/DataQueryLogo";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Tooltip } from "@/components/ui/Tooltip";
@@ -51,9 +51,9 @@ function AppNavContent() {
       <header className="sticky top-0 z-40 w-full border-b border-slate-800 bg-slate-950/90 backdrop-blur-md px-4 py-2.5 flex items-center justify-between">
         {/* Left: Brand + Active Project breadcrumb */}
         <div className="flex items-center space-x-4">
-          <Link href="/app" className="flex items-center gap-2 group">
-            <div className="w-7 h-7 rounded-md bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center text-slate-950 shadow-sm">
-              <Terminal className="w-4 h-4 stroke-[2.5]" />
+          <Link href="/app" className="flex items-center gap-2.5 group">
+            <div className="group-hover:scale-105 transition-transform">
+              <DataQueryLogo size={28} />
             </div>
             <span className="font-bold text-sm tracking-tight text-slate-100 hidden sm:inline">
               DataQuery<span className="text-sky-400">.in</span>
@@ -124,14 +124,12 @@ function AppNavContent() {
             </button>
           </Link>
 
-          {/* User Avatar */}
-          <div className="w-7 h-7 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center overflow-hidden">
-            <img
-              src={user.avatar}
-              alt={user.name}
-              className="w-full h-full object-cover"
-            />
-          </div>
+          {/* Website Logo User Badge */}
+          <Link href="/app/settings" title="Profile & Settings" className="group">
+            <div className="w-7 h-7 rounded-lg overflow-hidden flex items-center justify-center group-hover:scale-105 transition-transform">
+              <DataQueryLogo size={28} />
+            </div>
+          </Link>
         </div>
       </header>
 

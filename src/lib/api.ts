@@ -49,7 +49,7 @@ export const api = {
         name: email.split("@")[0] || "Analyst",
         email,
         plan: "free",
-        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120",
+        avatar: "/icon.svg",
       },
       token: "dqw_jwt_mock_token_validated",
     };

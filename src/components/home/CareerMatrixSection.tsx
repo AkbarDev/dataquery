@@ -30,6 +30,7 @@ import {
   Flame,
   Play,
 } from "lucide-react";
+import { DataQueryLogo } from "@/components/ui/DataQueryLogo";
 
 export interface CareerRole {
   id: string;
@@ -623,6 +624,22 @@ export function CareerMatrixSection() {
         {/* ==================================================== */}
         {viewMode === "tools" && (
           <div className="space-y-6">
+            {/* Ecosystem Header with Website Logo */}
+            <div className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-sky-950/40 via-slate-900 to-indigo-950/30 border border-sky-500/30 shadow-lg">
+              <div className="flex items-center gap-3">
+                <DataQueryLogo size={36} />
+                <div>
+                  <h4 className="text-sm font-bold text-slate-100 flex items-center gap-2">
+                    <span>DataQuery Analytical Ecosystem</span>
+                    <Badge variant="pro" size="sm">55 Essential Tools</Badge>
+                  </h4>
+                  <p className="text-[11px] text-slate-400">
+                    Industry standard tools for Data Scientists, Data Analysts &amp; Data Engineers — click any tool to run live simulations in the playground.
+                  </p>
+                </div>
+              </div>
+            </div>
+
             {/* Filter and Search Bar for the 55 Tools */}
             <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800 flex flex-col md:flex-row items-center justify-between gap-3">
               {/* Discipline Filter Pills */}
