@@ -343,7 +343,7 @@ export const useAppStore = create<AppState>()(
         name: "Community Analyst",
         email: "analyst@dataquery.in",
         plan: "community",
-        avatar: "/icon.svg",
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120",
       },
       usage: DEFAULT_USAGE,
       isUpgradeModalOpen: false,

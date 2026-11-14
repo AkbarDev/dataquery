@@ -28,11 +28,6 @@ export const metadata: Metadata = {
     "DAX Power BI online",
   ],
   authors: [{ name: "DataQuery AI Team" }],
-  icons: {
-    icon: "/icon.svg",
-    shortcut: "/icon.svg",
-    apple: "/icon.svg",
-  },
   metadataBase: new URL("https://dataquery.in"),
   openGraph: {
     title: "DataQuery AI | All-in-One Data Build & Analysis Platform",
