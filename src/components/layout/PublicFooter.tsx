@@ -1,7 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { Shield, Lock, ExternalLink } from "lucide-react";
-import { DataQueryLogo } from "@/components/ui/DataQueryLogo";
+import { Terminal, Shield, Lock, ExternalLink } from "lucide-react";
 
 export function PublicFooter() {
   return (
@@ -9,8 +8,10 @@ export function PublicFooter() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-10">
           <div className="col-span-2">
-            <div className="flex items-center gap-2.5 mb-3">
-              <DataQueryLogo size={24} />
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-6 h-6 rounded bg-sky-500 flex items-center justify-center text-slate-950">
+                <Terminal className="w-3.5 h-3.5 stroke-[2.5]" />
+              </div>
               <span className="font-bold text-slate-100 text-sm tracking-tight">
                 DataQuery<span className="text-sky-400">.in</span>
               </span>
