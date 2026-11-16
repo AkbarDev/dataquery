@@ -26,6 +26,7 @@ export interface AppState {
   loadedDatasets: Dataset[];
   setCurrentDataset: (dataset: Dataset) => void;
   addDataset: (dataset: Dataset) => void;
+  removeDataset: (datasetId: string) => void;
 
   // Playground Workspace
   activeLanguage: Language;
@@ -410,6 +411,38 @@ export const useAppStore = create<AppState>()(
             aiInsight: `Imported '${dataset.name}'. Dataset quality score: ${dataset.qualityScore}%. Ready for queries across all playgrounds.`,
           },
         }));
+      },
+      removeDataset: (datasetId) => {
+        set((state) => {
+          const nextDatasets = state.loadedDatasets.filter((d) => d.id !== datasetId);
+          const finalDatasets = nextDatasets.length > 0 ? nextDatasets : [SAMPLE_DATASET];
+          const isRemovingCurrent = state.currentDataset.id === datasetId;
+          const nextCurrent = isRemovingCurrent ? finalDatasets[0] : state.currentDataset;
+          const codes = generatePlaygroundCodes(nextCurrent);
+
+          return {
+            loadedDatasets: finalDatasets,
+            currentDataset: nextCurrent,
+            saveStatus: "Saved",
+            pythonCode: codes.pythonCode,
+            sqlCode: codes.sqlCode,
+            daxCode: codes.daxCode,
+            statisticsCode: codes.statisticsCode,
+            pysparkCode: codes.pysparkCode,
+            hadoopCode: codes.hadoopCode,
+            mlCode: codes.mlCode,
+            lastResult: {
+              status: "idle",
+              language: state.activeLanguage,
+              columns: nextCurrent.columns.map((c) => c.name),
+              rows: nextCurrent.data.slice(0, 50),
+              stdout: `[${new Date().toLocaleTimeString()}] Active table set to '${nextCurrent.name}' (${nextCurrent.rowCount} rows).\nRemoved table from in-memory workspace.`,
+              executionTimeMs: 12.0,
+              recommendedChart: "bar",
+              aiInsight: `Active table: '${nextCurrent.name}'. Ready for queries across all playgrounds.`,
+            },
+          };
+        });
       },
 
       activeLanguage: "python",
