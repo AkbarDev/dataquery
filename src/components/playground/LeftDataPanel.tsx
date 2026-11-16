@@ -22,6 +22,7 @@ import {
   ToggleLeft,
   ChevronRight,
   Sparkles,
+  Trash2,
 } from "lucide-react";
 
 export function LeftDataPanel() {
@@ -32,6 +33,7 @@ export function LeftDataPanel() {
     loadedDatasets,
     setCurrentDataset,
     addDataset,
+    removeDataset,
     usage,
     setUpgradeModalOpen,
   } = useAppStore();
@@ -190,29 +192,51 @@ export function LeftDataPanel() {
           {loadedDatasets.map((ds) => {
             const isSelected = ds.id === currentDataset.id;
             return (
-              <button
+              <div
                 key={ds.id}
                 onClick={() => {
-                  setCurrentDataset(ds);
-                  toast.success(
-                    "Table Switched & Synced",
-                    `Active table set to '${ds.name}'. Refreshed all 7 playground tabs and results.`
-                  );
+                  if (!isSelected) {
+                    setCurrentDataset(ds);
+                    toast.success(
+                      "Table Switched & Synced",
+                      `Active table set to '${ds.name}'. Refreshed all 7 playground tabs and results.`
+                    );
+                  }
                 }}
-                className={`w-full text-left p-2 rounded-lg flex items-center justify-between transition-colors cursor-pointer ${
+                className={`w-full text-left p-2 rounded-lg flex items-center justify-between transition-colors group cursor-pointer ${
                   isSelected
                     ? "bg-slate-900 border border-slate-700 text-slate-100 font-medium"
                     : "hover:bg-slate-900/50 text-slate-400"
                 }`}
               >
-                <div className="flex items-center gap-2 truncate">
+                <div className="flex items-center gap-2 truncate min-w-0 flex-1">
                   <TableIcon className="w-3.5 h-3.5 text-sky-400 shrink-0" />
                   <span className="truncate text-xs">{ds.name}</span>
                 </div>
-                <span className="text-[10px] font-mono text-slate-500 shrink-0 ml-1">
-                  {ds.rowCount} rows
-                </span>
-              </button>
+                
+                <div className="flex items-center gap-1.5 shrink-0 ml-1">
+                  <span className="text-[10px] font-mono text-slate-500">
+                    {ds.rowCount} rows
+                  </span>
+
+                  {/* Trash Icon Button */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeDataset(ds.id);
+                      toast.success(
+                        "Table Removed",
+                        `Removed '${ds.name}' from loaded tables.`
+                      );
+                    }}
+                    className="p-1 rounded hover:bg-rose-500/20 text-slate-500 hover:text-rose-400 opacity-60 group-hover:opacity-100 transition-all cursor-pointer"
+                    title={`Delete '${ds.name}'`}
+                    aria-label={`Delete ${ds.name}`}
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
             );
           })}
         </div>
